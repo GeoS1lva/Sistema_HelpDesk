@@ -30,7 +30,7 @@ O objetivo deste projeto é desenvolver um **Sistema Web de HelpDesk** robusto e
 ## 🛠️ Tecnologias Planejadas
 
 ### Front-End
-- React *(com possível uso de TypeScript para melhor tipagem e manutenção)*
+- React
 
 ### Back-End
 - C# (.NET 8) com ASP.NET Core Web API  
