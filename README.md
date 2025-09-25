@@ -45,3 +45,6 @@ O objetivo deste projeto é desenvolver um **Sistema Web de HelpDesk** robusto e
 
 ## 📅 Status do Projeto
 🚧 **Em fase inicial de planejamento** — nenhuma funcionalidade implementada até o momento.
+
+## Link Figma
+https://www.figma.com/design/KJFIsNApwUnpXrTFVwcEWq/Sistema-Help-Desk?node-id=0-1&t=bsnUhemxHY6fdTSL-1
