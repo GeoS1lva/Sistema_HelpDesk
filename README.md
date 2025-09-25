@@ -48,3 +48,6 @@ O objetivo deste projeto é desenvolver um **Sistema Web de HelpDesk** robusto e
 
 ## Link Figma
 https://www.figma.com/design/KJFIsNApwUnpXrTFVwcEWq/Sistema-Help-Desk?node-id=0-1&t=bsnUhemxHY6fdTSL-1
+
+## Link Documentação TechDesk
+https://github.com/GeoS1lva/Sistema_HelpDesk/blob/main/Documenta%C3%A7%C3%A3o_TechDesk.pdf
