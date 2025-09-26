@@ -65,7 +65,15 @@ O objetivo deste projeto é desenvolver um **Sistema Web de HelpDesk** robusto e
   - Envio de e-mail para redefinição de senha.
   - Estrutura preparada para futuros serviços de notificação.
 
+---
 
+## Link Figma
+https://www.figma.com/design/KJFIsNApwUnpXrTFVwcEWq/Sistema-Help-Desk?node-id=0-1&t=bsnUhemxHY6fdTSL-1
+
+## Link Documentação TechDesk - Em FAse de Construção
+https://github.com/GeoS1lva/Sistema_HelpDesk/blob/main/Documenta%C3%A7%C3%A3o_TechDesk.pdf
+
+---
 # Detalhamento dos Diretórios Front End (src/)
 Abaixo está a descrição de cada diretório principal dentro da pasta src/:
 
@@ -118,9 +126,36 @@ Propósito: Conter funções auxiliares, puras e genéricas que podem ser usadas
 
 Conteúdo: Funções que não dependem do estado do React, como formatadores de data (formatDate.js) etc.
 
+---
 
-## Link Figma
-https://www.figma.com/design/KJFIsNApwUnpXrTFVwcEWq/Sistema-Help-Desk?node-id=0-1&t=bsnUhemxHY6fdTSL-1
+# Detalhamento dos Diretórios BackEnd (Aplicacao)
 
-## Link Documentação TechDesk - Em FAse de Construção
-https://github.com/GeoS1lva/Sistema_HelpDesk/blob/main/Documenta%C3%A7%C3%A3o_TechDesk.pdf
+## 🏗️ Estrutura do Projeto
+
+O projeto segue os princípios da **Clean Architecture**, separando responsabilidades em camadas para garantir desacoplamento, testabilidade e manutenção do código.
+
+A estrutura atual está organizada da seguinte forma:
+Sistema_HelpDesk/
+│── Controllers # Pontos de entrada da API (camada de interface/adapters)
+│── Desk.Application # Regras de negócio da aplicação (casos de uso)
+│── Desk.Domain # Entidades e contratos de domínio (regras centrais do sistema)
+│── Desk.Infra # Implementações de infraestrutura (acesso a dados, repositórios, serviços externos)
+│── Migrations # Migrações do Entity Framework para controle de banco de dados
+│── appsettings.json # Arquivo de configuração da aplicação
+│── Program.cs # Ponto de entrada da aplicação
+
+### 📚 Descrição das Camadas
+
+- **Desk.Domain**  
+  Contém as **entidades de negócio** e **interfaces**. É a camada mais central, independente de frameworks ou bancos de dados.  
+
+- **Desk.Application**  
+  Implementa os **casos de uso** do sistema, orquestrando regras de negócio do domínio.  
+
+- **Desk.Infra**  
+  Responsável pela **persistência de dados** e integrações externas. Implementa interfaces definidas no domínio.  
+
+- **Controllers**  
+  Camada de **interface com o usuário** (no caso, API REST). Recebe as requisições, valida e repassa para a camada de aplicação.  
+
+Essa organização facilita a evolução do sistema, garantindo baixo acoplamento e alta coesão entre as partes.
