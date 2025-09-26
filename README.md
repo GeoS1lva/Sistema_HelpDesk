@@ -2,6 +2,9 @@
 
 ### 💡 Ideia
 O objetivo deste projeto é desenvolver um **Sistema Web de HelpDesk** robusto e intuitivo, que inclua não apenas a aplicação principal, mas também um **portal do cliente** para abertura e acompanhamento de chamados.
+Alunos:
+- Geovana Paula da Silva - RA 170610-2024 (Desenvolvedora BackEnd)
+- Eduardo Bernardes Zanin - RA 183624-2024 (Desenvolvedor FrontEnd)
 
 ---
 
@@ -13,7 +16,7 @@ O objetivo deste projeto é desenvolver um **Sistema Web de HelpDesk** robusto e
 - **Cadastro e gerenciamento de técnicos**  
   Perfis de técnicos com atribuição de chamados e registro de atividades.
 - **Categorização e mesas de atendimento**  
-  Organização dos chamados por áreas como *suporte*, *infraestrutura*, etc.
+  Organização dos chamados por áreas como suporte, infraestrutura, etc.
 - **Controle de tempo e produtividade**  
   Registro do tempo gasto em cada chamado, vinculado ao técnico responsável ou participantes na solução.
 
