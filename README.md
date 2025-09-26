@@ -77,51 +77,51 @@ https://github.com/GeoS1lva/Sistema_HelpDesk/blob/main/Documenta%C3%A7%C3%A3o_Te
 # Detalhamento dos Diretórios Front End (src/)
 Abaixo está a descrição de cada diretório principal dentro da pasta src/:
 
-# src/api/
+## src/api/
 Propósito: Centralizar toda a comunicação com a API externa (backend).
 
 Conteúdo: Funções que realizam as chamadas HTTP (ex: login, fetchTickets, createTicket).
 
-# src/assets/
+## src/assets/
 Propósito: Armazenar todos os arquivos estáticos da aplicação.
 
 Conteúdo: Imagens (logos, ícones), fontes personalizadas e outros recursos visuais.
 
-# src/components/
+## src/components/
 Propósito: O coração da interface do usuário. Contém todos os componentes React reutilizáveis. É subdividido para melhor organização:
 
-# ui/: Componentes de UI. São blocos de construção genéricos como Button.jsx, Input.jsx, Card.jsx. Eles não possuem lógica de negócio e são estilizados para seguir a identidade visual do TechDesk.
+## ui/: Componentes de UI. São blocos de construção genéricos como Button.jsx, Input.jsx, Card.jsx. Eles não possuem lógica de negócio e são estilizados para seguir a identidade visual do TechDesk.
 
-# layout/: Componentes responsáveis pela estrutura visual principal das páginas, como Sidebar.jsx ou DashboardLayout.jsx. Eles organizam o espaço onde o conteúdo das páginas será renderizado.
+## layout/: Componentes responsáveis pela estrutura visual principal das páginas, como Sidebar.jsx ou DashboardLayout.jsx. Eles organizam o espaço onde o conteúdo das páginas será renderizado.
 
-# features/: Componentes mais complexos que agrupam vários componentes de ui/ para realizar uma funcionalidade específica. Por exemplo, no TicketForm.jsx seria um componente de feature que combina inputs, botões e lógica para criar um novo chamado.
+## features/: Componentes mais complexos que agrupam vários componentes de ui/ para realizar uma funcionalidade específica. Por exemplo, no TicketForm.jsx seria um componente de feature que combina inputs, botões e lógica para criar um novo chamado.
 
 
-# src/contexts/
+## src/contexts/
 Propósito: Gerenciar o estado global da aplicação usando a Context API do React.
 
 Conteúdo: Provedores de contexto para dados que precisam ser acessíveis em várias partes da aplicação sem a necessidade de "prop drilling". Um exemplo claro será o AuthContext.jsx, que controlará os dados do usuário autenticado.
 
 
-# src/hooks/
+## src/hooks/
 Propósito: Armazenar hooks customizados do React.
 
 Conteúdo: Funções reutilizáveis que encapsulam lógica com estado (ex: useAuth, useFetchTickets). Hooks customizados ajudam a manter os componentes mais limpos e a compartilhar lógica complexa de forma eficiente.
 
 
-# src/pages/
+## src/pages/
 Propósito: Representar as páginas completas da aplicação, que são renderizadas com base nas rotas.
 
 Conteúdo: Componentes como LoginPage.jsx e DashboardPage.jsx. Eles são responsáveis por "montar" uma tela, organizando e orquestrando múltiplos componentes de layout e features para formar uma visão coesa para o usuário.
 
 
-# src/routes/
+## src/routes/
 Propósito: Definir e configurar o sistema de navegação (rotas) da aplicação.
 
 Conteúdo: Lógica de roteamento (usado a biblioteca react-router-dom) que mapeia as URLs do navegador para os componentes de pages correspondentes. Aqui também são definidas rotas privadas (protegidas por autenticação) e públicas.
 
 
-# src/utils/
+## src/utils/
 Propósito: Conter funções auxiliares, puras e genéricas que podem ser usadas em qualquer parte do projeto.
 
 Conteúdo: Funções que não dependem do estado do React, como formatadores de data (formatDate.js) etc.
