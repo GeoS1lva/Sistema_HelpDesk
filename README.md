@@ -112,13 +112,13 @@ O projeto segue os princípios da **Clean Architecture**, separando responsabili
 
 A estrutura atual está organizada da seguinte forma:
 Sistema_HelpDesk/
-── Controllers # Pontos de entrada da API (camada de interface/adapters)
-── Desk.Application # Regras de negócio da aplicação (casos de uso)
-── Desk.Domain # Entidades e contratos de domínio (regras centrais do sistema)
-── Desk.Infra # Implementações de infraestrutura (acesso a dados, repositórios, serviços externos)
-── Migrations # Migrações do Entity Framework para controle de banco de dados
-── appsettings.json # Arquivo de configuração da aplicação
-── Program.cs # Ponto de entrada da aplicação
+- Controllers # Pontos de entrada da API (camada de interface/adapters)
+- Desk.Application # Regras de negócio da aplicação (casos de uso)
+- Desk.Domain # Entidades e contratos de domínio (regras centrais do sistema)
+- Desk.Infra # Implementações de infraestrutura (acesso a dados, repositórios, serviços externos)
+- Migrations # Migrações do Entity Framework para controle de banco de dados
+- appsettings.json # Arquivo de configuração da aplicação
+- Program.cs # Ponto de entrada da aplicação
 
 ### 📚 Descrição das Camadas
 - **Desk.Domain**  
