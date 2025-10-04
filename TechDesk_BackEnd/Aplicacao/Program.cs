@@ -5,17 +5,17 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
-using Sistema_HelpDesk.Desk.Application.Autenticação.Interface;
-using Sistema_HelpDesk.Desk.Application.Autenticação.Service;
-using Sistema_HelpDesk.Desk.Application.Users.Interface;
-using Sistema_HelpDesk.Desk.Application.Users.Service.RedefinirSenha;
-using Sistema_HelpDesk.Desk.Domain.Emaill;
-using Sistema_HelpDesk.Desk.Domain.Users;
-using Sistema_HelpDesk.Desk.Domain.Users.Interface;
+using Sistema_HelpDesk.Desk.Application.Contracts.Repositories;
+using Sistema_HelpDesk.Desk.Application.Contracts.Security;
+using Sistema_HelpDesk.Desk.Application.Contracts.UnitOfWork;
+using Sistema_HelpDesk.Desk.Application.UseCases.Autenticação;
+using Sistema_HelpDesk.Desk.Application.UseCases.Users.ResetPasswords;
+using Sistema_HelpDesk.Desk.Domain.Users.Entities;
 using Sistema_HelpDesk.Desk.Infra.Autenticação;
 using Sistema_HelpDesk.Desk.Infra.Context;
 using Sistema_HelpDesk.Desk.Infra.Email;
-using Sistema_HelpDesk.Desk.Infra.Users;
+using Sistema_HelpDesk.Desk.Infra.Identity;
+using Sistema_HelpDesk.Desk.Infra.Persistence.UnitOfWork;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -87,11 +87,14 @@ builder.Services
     });
 
 builder.Services.AddScoped<IJwtGerador, JwtGerador>();
-builder.Services.AddScoped<IAutheService, AutheService>();
-builder.Services.AddScoped<IRolesInfra, RolesInfra>();
 builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration.GetSection("AuthMessageSenderOptions"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
-builder.Services.AddScoped<IResetarSenhaService, ResetarSenhaService>();
+
+builder.Services.AddScoped<IResetarSenhaUseCase, ResetarSenhaUseCase>();
+builder.Services.AddScoped<IAutheUseCase, AutheUseCase>();
+
+builder.Services.AddScoped<IRolesRepositorys, RolesRepositorys>();
+builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
 builder.Services.AddControllers();
 
@@ -110,7 +113,7 @@ var app = builder.Build();
 
 using(var scope = app.Services.CreateScope())
 {
-    var seedService = scope.ServiceProvider.GetRequiredService<IRolesInfra>();
+    var seedService = scope.ServiceProvider.GetRequiredService<IRolesRepositorys>();
     await seedService.InicializarRolesAsync();
 }
 

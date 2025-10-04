@@ -2,8 +2,8 @@
 using Microsoft.EntityFrameworkCore;
 using Sistema_HelpDesk.Desk.Domain.Chamados.Entidades;
 using Sistema_HelpDesk.Desk.Domain.Empresas.Entidades;
-using Sistema_HelpDesk.Desk.Domain.Mesa;
-using Sistema_HelpDesk.Desk.Domain.Users;
+using Sistema_HelpDesk.Desk.Domain.Mesa.Entities;
+using Sistema_HelpDesk.Desk.Domain.Users.Entities;
 
 namespace Sistema_HelpDesk.Desk.Infra.Context
 {
@@ -34,18 +34,6 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
                 u.HasKey(x => x.Id);
                 u.Property(x => x.Id).ValueGeneratedNever();
             });
-
-            modelBuilder.Entity<UserLogin>()
-                .HasOne(x => x.Tecnico)
-                .WithOne(t => t.UserLogin)
-                .HasForeignKey<Tecnico>(t => t.Id)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            modelBuilder.Entity<UserLogin>()
-                .HasOne(x => x.Cliente)
-                .WithOne(t => t.UserLogin)
-                .HasForeignKey<UsuariosEmpresa>(t => t.Id)
-                .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<UsuariosEmpresa>()
                 .HasOne(x => x.Empresa)
