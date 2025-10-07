@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using SendGrid;
-using SendGrid . Helpers . Mail;
-using Sistema_HelpDesk.Desk.Domain.Emaill;
+using SendGrid.Helpers.Mail;
 
 namespace Sistema_HelpDesk.Desk.Infra.Email
 {
