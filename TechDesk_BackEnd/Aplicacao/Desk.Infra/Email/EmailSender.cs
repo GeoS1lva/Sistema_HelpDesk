@@ -1,35 +1,38 @@
-﻿using Microsoft.AspNetCore.Identity.UI.Services;
+﻿using MailKit.Security;
+using MailKit.Net.Smtp;
+using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.Extensions.Options;
-using SendGrid;
-using SendGrid.Helpers.Mail;
+using MimeKit;
+using MimeKit.Text;
+using System.Net.Mail;
 
 namespace Sistema_HelpDesk.Desk.Infra.Email
 {
-    public class EmailSender(IOptions<AuthMessageSenderOptions> options, ILogger<EmailSender> logger) : IEmailSender
+    public class EmailSender(IOptions<EmailConfiguracao> options, ILogger<EmailSender> logger) : IEmailSender
     {
-        private readonly AuthMessageSenderOptions _options = options.Value;
+        private readonly EmailConfiguracao _options = options.Value;
+        private readonly ILogger<EmailSender> _logger = logger;
 
         public async Task SendEmailAsync(string email, string subject, string htmlMessage)
         {
-            var chave = new SendGridClient(_options.SendGridKey);
+            var message = new MimeMessage();
+            message.From.Add(new MailboxAddress(_options.FromName, _options.FromEmail));
+            message.To.Add(new MailboxAddress("", email));
+            message.Subject = subject;
+            message.Body = new TextPart(TextFormat.Html) { Text = htmlMessage };
 
-            var fromEmail = _options.FromEmail?.Trim();
-            var remetente = new EmailAddress(fromEmail, _options.FromName);
-
-            var destinatario = new EmailAddress(email);
-            var mensagem = MailHelper.CreateSingleEmail(remetente, destinatario, subject, plainTextContent: null, htmlContent: htmlMessage);
-            Response result = await chave.SendEmailAsync(mensagem).ConfigureAwait(false);
-
-            var status = (int)result.StatusCode;
-            var body = result.Body.ReadAsStringAsync();
-            var headers = result.Headers?.ToString();
-
-            if(result.StatusCode != System.Net.HttpStatusCode.Accepted)
+            using var smtp = new MailKit.Net.Smtp.SmtpClient();
+            try
             {
-                throw new InvalidOperationException(
-                $"E-mail não enviado. Status: {(int)result.StatusCode} {result.StatusCode}. " +
-                $"Body: {body.Result} | Headers: {headers}"
-                );
+                await smtp.ConnectAsync(_options.SmtpServer, _options.Port, SecureSocketOptions.StartTls);
+                await smtp.AuthenticateAsync(_options.UserName, _options.Password);
+                await smtp.SendAsync(message);
+                await smtp.DisconnectAsync(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Erro ao enviar e-mail");
+                throw;
             }
         }
     }

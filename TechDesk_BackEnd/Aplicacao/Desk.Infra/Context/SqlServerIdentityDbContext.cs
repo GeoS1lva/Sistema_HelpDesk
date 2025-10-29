@@ -23,23 +23,32 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<Tecnico>(t =>
-            {
-                t.HasKey(x => x.Id);
-                t.Property(x => x.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<UserLogin>()
+                .HasKey(x => x.Id);
 
-            modelBuilder.Entity<UsuariosEmpresa>(u =>
-            {
-                u.HasKey(x => x.Id);
-                u.Property(x => x.Id).ValueGeneratedNever();
-            });
+            modelBuilder.Entity<Tecnico>()
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<Tecnico>()
+                .Property(x => x.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<Tecnico>()
+                .HasOne(x => x.UserLogin)
+                .WithOne(x => x.Tecnico)
+                .HasForeignKey<Tecnico>(x => x.Id);
 
             modelBuilder.Entity<UsuariosEmpresa>()
-                .HasOne(x => x.Empresa)
-                .WithMany(e => e.Usuarios)
-                .HasForeignKey(x => x.EmpresaId)
-                .OnDelete(DeleteBehavior.Restrict);
+                .HasKey(x => x.Id);
+
+            modelBuilder.Entity<UsuariosEmpresa>()
+                .Property(x => x.Id)
+                .ValueGeneratedNever();
+
+            modelBuilder.Entity<UsuariosEmpresa>()
+                .HasOne(x => x.UserLogin)
+                .WithOne(x => x.UsuariosEmpresa)
+                .HasForeignKey<UsuariosEmpresa>(x => x.Id);
 
             modelBuilder.Entity<Chamado>()
                 .HasOne(x => x.Empresa)

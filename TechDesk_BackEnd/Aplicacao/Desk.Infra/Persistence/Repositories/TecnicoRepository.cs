@@ -10,7 +10,6 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
     public class TecnicoRepository(SqlServerIdentityDbContext context, UserManager<UserLogin> userManager) : ITecnicoRepository
     {
         private readonly SqlServerIdentityDbContext _context = context;
-        private readonly UserManager<UserLogin> _userManager = userManager;
 
         public void AdicionarTecnico(Tecnico tecnico)
             => _context.Tecnicos.Add(tecnico);
@@ -18,7 +17,6 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
         public async Task<bool> RemoverTecnico(int id)
         {
             var tecnico = await _context.Tecnicos.FirstOrDefaultAsync(x => x.Id == id);
-
 
             if (tecnico is null)
                 return false;

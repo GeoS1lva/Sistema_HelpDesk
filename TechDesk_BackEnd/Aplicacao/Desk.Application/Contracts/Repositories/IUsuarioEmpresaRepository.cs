@@ -6,6 +6,8 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.Repositories
     {
         public void AdicionarUsuarioEmpresa(UsuariosEmpresa user);
         public Task<bool> RemoverUsuarioEmpresa(int id);
+        public Task<bool> RemoverTodosUsuarioPorEmpresa(int empresaId);
         public Task<UsuariosEmpresa?> RetornarUsuario(int id);
+        public Task<List<UsuariosEmpresa>> RetornarUsuariosPorEmpresa(int id);
     }
 }

@@ -22,7 +22,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Identity
                 }
             }
 
-            var userAdmin = new UserLogin { UserName = "Admin" };
+            var userAdmin = new UserLogin { UserName = "Admin", TipoPerfil = 0 };
             await _userManager.CreateAsync(userAdmin, "Admin@123");
             await _userManager.AddToRoleAsync(userAdmin, "Administrador");
         }

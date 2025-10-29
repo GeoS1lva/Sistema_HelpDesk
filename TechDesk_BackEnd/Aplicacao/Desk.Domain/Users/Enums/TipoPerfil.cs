@@ -2,6 +2,7 @@
 {
     public enum TipoPerfil
     {
+        administrador,
         tecnico,
         usuario
     }

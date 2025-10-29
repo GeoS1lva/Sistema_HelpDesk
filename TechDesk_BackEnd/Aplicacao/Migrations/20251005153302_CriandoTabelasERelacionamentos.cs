@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace Sistema_HelpDesk.Migrations
 {
     /// <inheritdoc />
-    public partial class CriantoTabelasEntidadesPrincipais : Migration
+    public partial class CriandoTabelasERelacionamentos : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -32,6 +32,7 @@ namespace Sistema_HelpDesk.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    TipoPerfil = table.Column<int>(type: "int", nullable: false),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -195,7 +196,8 @@ namespace Sistema_HelpDesk.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false),
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    HorasTotalAtendimento = table.Column<long>(type: "bigint", nullable: false)
+                    HorasTotalAtendimento = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -205,7 +207,7 @@ namespace Sistema_HelpDesk.Migrations
                         column: x => x.Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
@@ -225,13 +227,13 @@ namespace Sistema_HelpDesk.Migrations
                         column: x => x.Id,
                         principalTable: "AspNetUsers",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UsuariosEmpresa_Empresas_EmpresaId",
                         column: x => x.EmpresaId,
                         principalTable: "Empresas",
                         principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(

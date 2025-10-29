@@ -2,9 +2,8 @@
 
 namespace Sistema_HelpDesk.Desk.Application.UseCases.Empresas.DTOs
 {
-    public class EmpresaAtualizar
+    public class EmpresaAtualizarNome
     {
         public string? Nome { get; set; }
-        public string? Email { get; set; }
     }
 }

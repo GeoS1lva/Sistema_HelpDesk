@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sistema_HelpDesk.Desk.Application.Contracts.Repositories;
+using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks.DTOs;
 using Sistema_HelpDesk.Desk.Domain.Mesa.Entities;
+using Sistema_HelpDesk.Desk.Domain.Users.Entities;
 using Sistema_HelpDesk.Desk.Infra.Context;
 
 namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
@@ -11,23 +13,46 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
 
         public void AdicionarMesaAtendimento(MesaAtendimento mesa)
             => _context.MesasAtendimento.Add(mesa);
+        public void AdicionarTecnicoAMesa(MesaTecnicos relacionamento)
+            => _context.MesaTecnicos.Add(relacionamento);
 
-        public async Task<bool> RemoverMesaAtendimento(string nome)
+        public async Task RemoverMesaAtendimento(MesaAtendimento mesa)
         {
-            var mesa = await _context.MesasAtendimento.FirstOrDefaultAsync(x => x.Nome == nome);
-
-            if (mesa is null)
-                return false;
-
-            mesa.Desativado();
-
-            return true;
+            await RemoverRelacionamentosMesa(mesa.Id);
+            _context.MesasAtendimento.Remove(mesa);
         }
 
-        public async Task<List<MesaAtendimento>> RetornarListaMesasAtendimento()
-            => await _context.MesasAtendimento.ToListAsync();
+        public async Task<bool> ConfirmarMesaCadastrada(int id)
+            => await _context.MesasAtendimento.AnyAsync(x => x.Id == id);
+        public async Task<bool> ConfirmarMesaCadastrada(string nome)
+            => await _context.MesasAtendimento.AnyAsync(x => x.Nome == nome);
 
-        public async Task<List<MesaAtendimento>> RetornarListaMesasAtendimentoAtivas()
-            => await _context.MesasAtendimento.Where(x => x.Status == true).ToListAsync();
+        public async Task<MesaAtendimento?> RetornarMesaAtendimento(int id)
+            => await _context.MesasAtendimento.FirstOrDefaultAsync(x => x.Id == id);
+
+        public async Task<List<MesaAtendimentoInformacoes>> RetornarListaMesasAtendimento()
+            => await _context.MesasAtendimento
+                             .Select(x => new MesaAtendimentoInformacoes { id = x.Id, Nome = x.Nome })
+                             .ToListAsync();
+
+        public async Task<List<string>> RetornarListaMesaTecnico(int IdUser)
+        {
+            List<string> listaNomesMesa = [];
+            var lista = await _context.MesaTecnicos.Where(x => x.TecnicoId == IdUser).ToListAsync();
+
+            foreach (var item in lista)
+            {
+                var mesa = await _context.MesasAtendimento.FirstOrDefaultAsync(x => x.Id == item.MesaAtendimentoId);
+                listaNomesMesa.Add(mesa.Nome);
+            }
+
+            return listaNomesMesa;
+        }
+
+        public async Task RemoverRelacionamento(int tecnicoId)
+            => await _context.MesaTecnicos.Where(x => x.TecnicoId == tecnicoId).ExecuteDeleteAsync();
+
+        public async Task RemoverRelacionamentosMesa(int mesaId)
+            => await _context.MesaTecnicos.Where(x => x.MesaAtendimentoId == mesaId).ExecuteDeleteAsync();
     }
 }

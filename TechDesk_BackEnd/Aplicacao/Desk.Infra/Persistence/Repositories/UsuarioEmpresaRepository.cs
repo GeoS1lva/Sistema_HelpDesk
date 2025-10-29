@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Sistema_HelpDesk.Desk.Application.Contracts.Repositories;
+using Sistema_HelpDesk.Desk.Application.UseCases.UsersCompanies.DTOs;
 using Sistema_HelpDesk.Desk.Domain.Empresas.Entidades;
 using Sistema_HelpDesk.Desk.Domain.Users.Entities;
 using Sistema_HelpDesk.Desk.Infra.Context;
@@ -27,7 +28,24 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
             return true;
         }
 
+        public async Task<bool> RemoverTodosUsuarioPorEmpresa(int empresaId)
+        {
+            try
+            {
+                var processo = await _context.Database.ExecuteSqlRawAsync("UPDATE dbo.UsuariosEmpresa SET Status = 0 WHERE EmpresaId = {0}", empresaId);
+
+                return processo > 0;
+            } 
+            catch (Exception ex)
+            {
+                return false;
+            }
+        }
+
         public async Task<UsuariosEmpresa?> RetornarUsuario(int id)
             => await _context.UsuariosEmpresa.FirstOrDefaultAsync(x => x.Id == id);
+
+        public async Task<List<UsuariosEmpresa>> RetornarUsuariosPorEmpresa(int id)
+            => await _context.UsuariosEmpresa.Where(x => x.EmpresaId == id).ToListAsync();
     }
 }

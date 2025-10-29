@@ -38,7 +38,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Autenticação
             if (!result)
                 return ResultModel<string>.Erro("Credenciais Inválidas."); ;
 
-            var roles = await unitOfWork.UserLoginRepository.RetornarPapeisUser(user);
+            var roles = await unitOfWork.UserLoginRepository.RetornarPapeisUser(user.UserName);
             var token = jwt.GeradorJwt(user, roles);
 
             return ResultModel<string>.Sucesso(token);

@@ -7,5 +7,8 @@ namespace Sistema_HelpDesk.Desk.Domain.Users.Entities
     public class UserLogin : IdentityUser<int>
     {
         public TipoPerfil TipoPerfil { get; set; }
+
+        public Tecnico? Tecnico { get; set; }
+        public UsuariosEmpresa? UsuariosEmpresa { get; set; }
     }
 }

@@ -9,7 +9,15 @@ using Sistema_HelpDesk.Desk.Application.Contracts.Repositories;
 using Sistema_HelpDesk.Desk.Application.Contracts.Security;
 using Sistema_HelpDesk.Desk.Application.Contracts.UnitOfWork;
 using Sistema_HelpDesk.Desk.Application.UseCases.Autenticação;
+using Sistema_HelpDesk.Desk.Application.UseCases.Companies;
+using Sistema_HelpDesk.Desk.Application.UseCases.Companies.Interface;
+using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks;
+using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks.Interface;
+using Sistema_HelpDesk.Desk.Application.UseCases.Users;
+using Sistema_HelpDesk.Desk.Application.UseCases.Users.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users.ResetPasswords;
+using Sistema_HelpDesk.Desk.Application.UseCases.UsersCompanies;
+using Sistema_HelpDesk.Desk.Application.UseCases.UsersCompanies.Interface;
 using Sistema_HelpDesk.Desk.Domain.Users.Entities;
 using Sistema_HelpDesk.Desk.Infra.Autenticação;
 using Sistema_HelpDesk.Desk.Infra.Context;
@@ -87,14 +95,51 @@ builder.Services
     });
 
 builder.Services.AddScoped<IJwtGerador, JwtGerador>();
-builder.Services.Configure<AuthMessageSenderOptions>(builder.Configuration.GetSection("AuthMessageSenderOptions"));
+builder.Services.Configure<EmailConfiguracao>(builder.Configuration.GetSection("EmailConfiguracao"));
 builder.Services.AddTransient<IEmailSender, EmailSender>();
 
 builder.Services.AddScoped<IResetarSenhaUseCase, ResetarSenhaUseCase>();
 builder.Services.AddScoped<IAutheUseCase, AutheUseCase>();
 
+builder.Services.AddScoped<ICriarTecnicoUseCase, CriarTecnicoUseCase>();
+builder.Services.AddScoped<IRemoverTecnicoUseCase, RemoverTecnicoUseCase>();
+builder.Services.AddScoped<IRetornarInformacoesUseCase, RetornarInformacoesUseCase>();
+
+builder.Services.AddScoped<ICrirEmpresaUseCase, CrirEmpresaUseCase>();
+builder.Services.AddScoped<IAtualizarEmpresaUseCase, AtualizarEmpresaUseCase>();
+builder.Services.AddScoped<IRetornarInformacoesEmpresaUseCase, RetornarInformacoesEmpresaUseCase>();
+
+builder.Services.AddScoped<ICriarUsuarioEmpresaUseCase, CriarUsuarioEmpresaUseCase>();
+builder.Services.AddScoped<IRetornarInformacoesUsuarioEmpresaUseCase, RetornarInformacoesUsuarioEmpresaUseCase>();
+
+builder.Services.AddScoped<ICriarMesaAtendimentoUseCase, CriarMesaAtendimentoUseCase>();
+builder.Services.AddScoped<IRemoverMesaAtendimentoUseCase, RemoverMesaAtendimentoUseCase>();
+builder.Services.AddScoped<IRetornarInformacoesMesasAtendimentoUseCase, RetornarInformacoesMesasAtendimentoUseCase>();
+
 builder.Services.AddScoped<IRolesRepositorys, RolesRepositorys>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("PermitirFrontEnd", policy =>
+    {
+        policy
+            .WithOrigins(
+            "https://lashaun-unbumped-squarely.ngrok-free.dev/",
+            "http://localhost:5173")
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ConfigureHttpsDefaults(httpsOptions =>
+    {
+        httpsOptions.AllowAnyClientCertificate();
+    });
+});
 
 builder.Services.AddControllers();
 
@@ -105,24 +150,25 @@ builder.Services.AddSwaggerGen(s =>
     {
         Title = "TechDesk",
         Version = "v1",
-        Description = "APIs para o Sistema de HelpDesk"
+        Description = "APIs para o Sistema de HelpDesk - TechDesk"
     });
 });
 
 var app = builder.Build();
 
-using(var scope = app.Services.CreateScope())
+using (var scope = app.Services.CreateScope())
 {
     var seedService = scope.ServiceProvider.GetRequiredService<IRolesRepositorys>();
     await seedService.InicializarRolesAsync();
 }
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseCors("PermitirFrontEnd");
 
 app.UseHttpsRedirection();
 
