@@ -1,18 +1,36 @@
 import React, { useState } from "react";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
-import apiClient from "../api/apiClient,";
+import apiClient from "../api/apiClient,"; 
 
 const RedefinicaoDeSenha = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [message, SetMessage] = useState("");
+  const [message, setMessage] = useState(""); 
+  const [isLoading, setIsLoading] = useState(false); 
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     setError("");
-    SetMessage("");
+    setMessage(""); 
+    setIsLoading(true);
+
+    
+    if (!username || !email) {
+      setError("Por favor, preencha todos os campos.");
+      setIsLoading(false);
+      return;
+    }
+
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setIsLoading(false);
+
+    
+    console.log("Solicitação enviada para:", { username, email });
+    setMessage("Link de redefinição enviado para o seu e-mail!");
+    
+    
   };
 
   return (
@@ -24,9 +42,9 @@ const RedefinicaoDeSenha = () => {
             "repeating-conic-gradient(from 0deg, #000 0deg 25deg, transparent  0deg 30deg)",
         }}
       >
-        <div className="bg-[#262626]  p-8 rounded-xl w-full max-w-md shadow-2xl shadow-black/50">
+        <div className="bg-[#262626] p-8 rounded-xl w-full max-w-md shadow-2xl shadow-black/50">
           <div className="text-center mb-8">
-            <h1 className="text-white text-2xl font-bold mb-6">
+            <h1 className="text-white text-2xl font-bold mb-4">
               Redefinição de Senha
             </h1>
 
@@ -36,7 +54,7 @@ const RedefinicaoDeSenha = () => {
             </p>
           </div>
 
-          <form className="space-y-6" onSubmit={handlePasswordReset}>
+          <form className="space-y-5" onSubmit={handlePasswordReset}>
             <div>
               <Input
                 type="text"
@@ -44,6 +62,7 @@ const RedefinicaoDeSenha = () => {
                 aria-label="Usuário"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
+                className="bg-[#2F2F2F] border border-gray-600 text-white rounded"
               />
             </div>
 
@@ -54,21 +73,29 @@ const RedefinicaoDeSenha = () => {
                 aria-label="Email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className="bg-[#2F2F2F] border border-gray-600 text-white rounded"
               />
             </div>
 
             {error && (
-              <p className="text-red-400 text-sm text-center">{error}</p>
+              <p className="text-red-400 text-sm text-center !mt-4">{error}</p>
             )}
 
-            {/* Exibição de Mensagem de Sucesso */}
+            
             {message && (
-              <p className="text-green-400 text-sm text-center">{message}</p>
+              <p className="text-green-400 text-sm text-center !mt-4">{message}</p>
             )}
 
-            {/* Botão de Ação */}
-            <div className="ml-14">
-              <Button type="submit">Recuperar senha</Button>
+            
+            
+            <div className="pt-6 justify-center items-center flex">
+              <Button 
+                type="submit" 
+                className="w-[298px]"
+                disabled={isLoading}
+              >
+                {isLoading ? "Enviando..." : "Recuperar senha"}
+              </Button>
             </div>
           </form>
         </div>
