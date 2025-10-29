@@ -40,7 +40,7 @@ const StatusBadge = ({ status }: { status: string }) => (
   </span>
 );
 
-const ListaUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresaId, onUsuarioCadastrado }) => {
+const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresaId, onUsuarioCadastrado }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   
   const gridColsClass =
@@ -120,4 +120,4 @@ const ListaUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresaI
   );
 };
 
-export default ListaUsuariosEmpresa;
+export default ListarUsuariosEmpresa;

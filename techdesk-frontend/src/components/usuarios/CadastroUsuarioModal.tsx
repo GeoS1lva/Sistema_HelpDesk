@@ -7,11 +7,12 @@ import apiClient from "../../api/apiClient,";
 const USE_MOCK_DATA_POST = true
 
 interface UsuarioFromApi {
-  Id: number;
-  Nome: string;
-  Usuario: string; 
-  Email: string;
-  DataCadastro: string; 
+  id: number;
+  nome: string;
+  usuario: string; 
+  email: string;
+  dataCadastro: string;
+  status: string
 }
 
 interface CadastroUsuarioModalProps {
@@ -39,6 +40,7 @@ const CadastroUsuarioModal: React.FC<CadastroUsuarioModalProps> = ({
   const [usuario, setUsuario] = useState("");
   const [email, setEmail] = useState("");
   const [status, setStatus] = useState("Ativo");
+  const [password, setPassword] = useState("")
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,7 +56,8 @@ const CadastroUsuarioModal: React.FC<CadastroUsuarioModalProps> = ({
       UserName: usuario, 
       Email: email,
       Status: status === "Ativo" ? 1 : 0, 
-      EmpresaId: empresaId, 
+      EmpresaId: empresaId,
+      Password: password 
     };
 
     try {
@@ -94,35 +97,46 @@ const CadastroUsuarioModal: React.FC<CadastroUsuarioModalProps> = ({
     <Modal title="Cadastrar Usuário" onClose={onClose}>
       <div className="border-t mb-10 border-white/40"></div>
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div className="flex flex-col md:flex-row gap-4">
         <LabeledInput
           className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
-          label="Nome Completo"
+          label="Nome"
           type="text"
           value={nome}
           onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
             setNome(e.target.value)
           }
         />
+        <LabeledInput
+          className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+          label="E-mail"
+          type="email"
+          value={email}
+          onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            setEmail(e.target.value)
+          }
+        />
+        </div>
 
         <div className="flex flex-col md:flex-row gap-4">
           <LabeledInput
             className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
-            label="Usuário (para login)"
+            label="Usuário"
             type="text"
             value={usuario}
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setUsuario(e.target.value)
             }
           />
-          <LabeledInput
-            className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
-            label="E-mail"
-            type="email"
-            value={email}
-            onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              setEmail(e.target.value)
-            }
-          />
+            <LabeledInput
+              className="bg-[#606060]  border border-[#CAC9CF] focus:outline-none focus:border-purple-500 w-[278px] h-[42px] "
+              label="Senha"
+              type="password"
+              value={password}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                setEmail(e.target.value)
+              }
+            />
         </div>
 
         <div>

@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import FormularioEditarEmpresa from '../components/empresas/FormularioEditarEmpresa'
-import ListaUsuariosEmpresa from '../components/usuarios/ListaUsuariosEmpresa'
+import ListarUsuariosEmpresa from '../components/usuarios/ListarUsuariosEmpresa'
 import apiClient from '../api/apiClient,'
 
 interface EmpresaData {
@@ -42,26 +43,27 @@ const EditarEmpresa: React.FC = () => {
   const empresaId = parseInt(id || "0")
   const [empresa, setEmpresa] = useState<EmpresaData>(mockEmpresasData)
   const [usuarios, setUsuarios] = useState<UsuarioData[]>(mockUsuariosData)
-  const [loading, setLoading] = useState(true)
+  const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   
   useEffect(() => {
-    const fetchDados = async () => {
-      setLoading(true);
-      try {
-        const [empresaRes, usuariosRes] = await Promise.all([
-          apiClient.get(`/api/empresas/${id}`),
-          apiClient.get(`/api/usuarios?empresaId=${id}`)
-        ]);
-        setEmpresa(empresaRes.data);
-        setUsuarios(usuariosRes.data);
-      } catch (error) {
-        console.error("Erro ao buscar dados:", error);
-      }
-      setLoading(false);
-    };
-    fetchDados();
-    setLoading(false) 
+    // const fetchDados = async () => {
+    //   setLoading(true);
+    //   try {
+    //     const [empresaRes, usuariosRes] = await Promise.all([
+    //       apiClient.get(`/api/empresas/${id}`),
+    //       apiClient.get(`/api/usuarios?empresaId=${id}`)
+    //     ]);
+    //     setEmpresa(empresaRes.data);
+    //     setUsuarios(usuariosRes.data);
+    //   } catch (error) {
+    //     console.error("Erro ao buscar dados:", error);
+    //   }
+    //   setLoading(false);
+    // };
+    // fetchDados();
+    // setLoading(false) 
   }, [id])
 
   const handleUsuarioCadastrado = (novoUsuario: UsuarioData) => {
@@ -73,10 +75,18 @@ const EditarEmpresa: React.FC = () => {
   }
 
   return (
-    <div className="p-10 text-white space-y-10">
+    <div className="p-10 text-white space-y-3">
+      <div className="pt-1 border-t mb-1 border-white/40"></div>
+      <button
+          onClick={() => navigate("/empresas")}
+          className="flex items-center space-x-1 bg-purple-500 hover:bg-purple-700 px-4 py-2 rounded-lg font-semibold transition-colors"
+        >
+          <span>Voltar</span>
+        </button>
+      <div className="pt-4 border-t mb-1 border-white/40"></div>
       <FormularioEditarEmpresa initialData={empresa} />
 
-      <ListaUsuariosEmpresa 
+      <ListarUsuariosEmpresa 
       usuarios={usuarios} empresaId={empresaId} onUsuarioCadastrado={handleUsuarioCadastrado} />
     </div>
   );
