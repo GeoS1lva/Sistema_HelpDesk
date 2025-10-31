@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from 'lucide-react';
-import EditarEmpresa from '../../pages/EditarEmpresa';
+import { useState } from 'react'
+import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from 'lucide-react'
+import { useNavigate } from 'react-router-dom';
 import CadastroUsuarioModal from './CadastroUsuarioModal'; 
 
 interface UsuarioData {
@@ -42,6 +42,7 @@ const StatusBadge = ({ status }: { status: string }) => (
 
 const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresaId, onUsuarioCadastrado }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const navigate = useNavigate()
   
   const gridColsClass =
     'grid grid-cols-[1.9fr_1.9fr_1.9fr_0.4fr] items-center gap-6 px-5';
@@ -101,7 +102,9 @@ const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresa
                 {/* <button className="text-gray-400 hover:text-blue-500">
                   <Eye className="w-5 h-5" />
                 </button> */}
-                <button className="text-gray-400 hover:text-yellow-500">
+                <button
+                  onClick={() => navigate(`/usuarios/editar/${usuario.id}`)} 
+                  className="text-gray-400 hover:text-yellow-500">
                   <Pencil className="w-5 h-5" />
                 </button>
                 <button className="text-gray-400 hover:text-red-500">

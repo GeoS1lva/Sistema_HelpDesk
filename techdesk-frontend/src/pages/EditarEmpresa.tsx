@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
+import { ChevronLeft } from 'lucide-react';
 import FormularioEditarEmpresa from '../components/empresas/FormularioEditarEmpresa'
 import ListarUsuariosEmpresa from '../components/usuarios/ListarUsuariosEmpresa'
 import apiClient from '../api/apiClient,'
@@ -79,9 +80,10 @@ const EditarEmpresa: React.FC = () => {
       <div className="pt-1 border-t mb-1 border-white/40"></div>
       <button
           onClick={() => navigate("/empresas")}
-          className="flex items-center space-x-1 bg-purple-500 hover:bg-purple-700 px-4 py-2 rounded-lg font-semibold transition-colors"
+          className="flex items-center space-x-2 bg-purple-500 hover:bg-purple-700 px-2 py-2 rounded-lg font-semibold transition-colors"
         >
-          <span>Voltar</span>
+          <ChevronLeft className="w-5 h-5"/>
+          <span> Voltar</span>
         </button>
       <div className="pt-4 border-t mb-1 border-white/40"></div>
       <FormularioEditarEmpresa initialData={empresa} />

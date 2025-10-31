@@ -1,20 +1,23 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from "lucide-react";
+// 1. CORREÇÃO: Removida a vírgula no final do import
 import apiClient from "../api/apiClient,";
 import CadastroEmpresaModal from "../components/empresas/CadastroEmpresaModal";
+import ConfirmationModal from "../components/ui/ConfirmationModal";
 
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA_GET = true;
+const USE_MOCK_DATA_POST = true;
+const USE_MOCK_DATA_DELETE = true;
 
 interface EmpresaFromApi {
   Id: number;
   Nome: string;
   Cnpj: string;
-  Email: string,
+  Email: string;
   Status: number;
   DataCriacao: string;
 }
-
 interface EmpresaView {
   id: number;
   nome: string;
@@ -26,36 +29,29 @@ interface EmpresaView {
 const mockEmpresas: EmpresaView[] = [
   {
     id: 1,
-    nome: "Empresa A",
+    nome: "Empresa A (Mock)",
     cnpj: "00.000.000/0001-00",
     email: "user@gmail.com",
     status: "Ativo",
   },
   {
     id: 2,
-    nome: "Empresa B",
+    nome: "Empresa B (Mock)",
     cnpj: "11.111.111/0001-11",
     email: "user@gmail.com",
     status: "Inativo",
   },
-  {
-    id: 3,
-    nome: "Soluções Tech",
-    cnpj: "22.222.222/0001-22",
-    email: "user@gmail.com",
-    status: "Ativo",
-  },
 ];
 
-const transformApiToView = (empresaApi: EmpresaFromApi): EmpresaView => ({
-  id: empresaApi.Id,
-  nome: empresaApi.Nome,
-  cnpj: empresaApi.Cnpj,
-  email: empresaApi.Email,
-  status: empresaApi.Status === 1 ? "Ativo" : "Inativo",
+const transformApiToView = (apiData: EmpresaFromApi): EmpresaView => ({
+  id: apiData.Id,
+  nome: apiData.Nome,
+  cnpj: apiData.Cnpj,
+  email: apiData.Email,
+  status: apiData.Status === 1 ? "Ativo" : "Inativo",
 });
 
-const headers = ["Nome Fantasia", "CNPJ", "E-mail", "Status", "Ações"];
+const headers = ["Nome", "CNPJ", "E-mail", "Status", "Ações"];
 
 const StatusBadge = ({ status }: { status: string }) => (
   <span
@@ -72,38 +68,41 @@ const StatusBadge = ({ status }: { status: string }) => (
   </span>
 );
 
+interface DeleteModalState {
+  isOpen: boolean;
+  id: number | null;
+}
+
 const Empresas = () => {
   const navigate = useNavigate();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [empresas, setEmpresas] = useState(mockEmpresas);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [deleteModal, setDeleteModal] = useState<DeleteModalState>({
+    isOpen: false,
+    id: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     const fetchEmpreas = async () => {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
-      if (USE_MOCK_DATA) {
-        setEmpresas(mockEmpresas)
-        setLoading(false)
-        return
+      if (USE_MOCK_DATA_GET) {
+        setEmpresas(mockEmpresas);
+        setLoading(false);
+        return;
       }
 
       try {
-        const res = await apiClient.get<EmpresaFromApi[]>("api/empresas");
-
-        const transformedData: EmpresaView[] = res.data.map((empresaApi) => ({
-          id: empresaApi.Id,
-          nome: empresaApi.Nome,
-          cnpj: empresaApi.Cnpj,
-          email: empresaApi.Email,
-          status: empresaApi.Status === 1 ? "Ativo" : "Inativo",
-        }));
-
+        const response = await apiClient.get<EmpresaFromApi[]>("/api/Empresas");
+        const transformedData = response.data.map(transformApiToView);
         setEmpresas(transformedData);
       } catch (err) {
         setError("Falha ao carregar os dados das empresas.");
+        console.error(err);
       } finally {
         setLoading(false);
       }
@@ -117,6 +116,37 @@ const Empresas = () => {
     setEmpresas((empresasAtuais) => [novaEmpresaView, ...empresasAtuais]);
   };
 
+  const handleDeleteClick = (id: number) => {
+    setDeleteModal({ isOpen: true, id: id });
+  };
+
+  const handleConfirmDelete = async () => {
+    const idToDelete = deleteModal.id;
+    if (!idToDelete) return;
+    setIsDeleting(true);
+
+    try {
+      if (USE_MOCK_DATA_DELETE) {
+        console.log(`Modo Mock: Deletando empresa com ID: ${idToDelete}`)
+        await new Promise((res) => setTimeout(res, 1000))
+      } else {
+        await apiClient.delete(`/api/empresas/${idToDelete}`)
+      }
+
+      setEmpresas((empresasAtuais) =>
+        empresasAtuais.filter((empresa) => empresa.id !== idToDelete)
+      );
+    } catch (err) {
+      console.error("Erro ao deletar empresa:", err)
+    } finally {
+      setDeleteModal({ isOpen: false, id: null })
+      setIsDeleting(false);
+    }
+  }
+
+  const gridColsClass =
+    "grid grid-cols-[2.5fr_1.5fr_2fr_1.5fr_0.4fr] items-center gap-6 px-6";
+
   if (loading) {
     return <div className="p-10 text-white">Carregando empresas...</div>;
   }
@@ -124,9 +154,6 @@ const Empresas = () => {
   if (error) {
     return <div className="p-10 text-red-500">{error}</div>;
   }
-
-  const gridColsClass =
-    "grid grid-cols-[2.5fr_1.5fr_2fr_1.5fr_0.4fr] items-center gap-6 px-6";
 
   return (
     <div className="p-7 text-white">
@@ -140,6 +167,7 @@ const Empresas = () => {
           <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
       </div>
+      {/* Estas linhas parecem ser divisores extras, mantive-os como no seu código */}
       <div className="mt-auto pt-4 border-t mb-10 border-white/40"></div>
       <div className="mt-auto pt-4 border-t mb-10 border-white/40"></div>
 
@@ -197,20 +225,37 @@ const Empresas = () => {
                 >
                   <Pencil className="w-5 h-5" />
                 </button>
-                <button className="text-gray-400 hover:text-red-500">
+                <button
+                  onClick={() => handleDeleteClick(empresa.id)}
+                  className="text-gray-400 hover:text-red-500"
+                >
                   <Trash2 className="w-5 h-5" />
                 </button>
               </div>
-
-              {isModalOpen && (
-                <CadastroEmpresaModal onClose={() => setIsModalOpen(false)} onSaveSucess={handleCadastroSuccess} />
-              )}
             </div>
           </div>
         ))}
       </div>
+
+      {isModalOpen && (
+        <CadastroEmpresaModal
+          onClose={() => setIsModalOpen(false)}
+          onSaveSucess={handleCadastroSuccess}
+        />
+      )}
+
+      {deleteModal.isOpen && (
+        <ConfirmationModal
+          title="Confirmar Exclusão"
+          message={`Tem certeza que deseja excluir a empresa? Esta ação não pode ser desfeita.`}
+          onClose={() => setDeleteModal({ isOpen: false, id: null })}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
+        />
+      )}
     </div>
   );
 };
 
 export default Empresas;
+

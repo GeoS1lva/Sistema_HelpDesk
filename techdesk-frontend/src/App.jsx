@@ -12,6 +12,7 @@ import RedefinicaoDeSenha from "./pages/RedefinicaoDeSenha";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Empresas from "./pages/Empresas";
 import EditarEmpresa from './pages/EditarEmpresa';
+import EditarUsuario from './pages/EditarUsuario'
 import AlterarSenha from "./pages/AlterarSenha";
 import Sidebar from "./components/layout/Sidebar";
 import { Tickets } from "lucide-react";
@@ -53,6 +54,7 @@ function App() {
             {/* <Route path="Tickets" element={<Tickets />} /> */}
             <Route path="empresas" element={<Empresas />} />
             <Route path="empresas/editar/:id" element={<EditarEmpresa />} />
+            <Route path="usuarios/editar/:userId" element={<EditarUsuario />} />
             
             {/* <Route path="chamados" element={<Chamados />} /> */}
             {/* <Route path="usuarios" element={<Usuarios />} /> */}

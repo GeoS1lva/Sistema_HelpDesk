@@ -7,12 +7,13 @@ import apiClient from "../../api/apiClient,";
 const USE_MOCK_DATA_POST = true
 
 interface UsuarioFromApi {
-  id: number;
-  nome: string;
-  usuario: string; 
-  email: string;
-  dataCadastro: string;
+  id: number
+  nome: string
+  usuario: string;
+  email: string
+  dataCadastro: string
   status: string
+  password: string
 }
 
 interface CadastroUsuarioModalProps {
@@ -72,6 +73,7 @@ const CadastroUsuarioModal: React.FC<CadastroUsuarioModalProps> = ({
           usuario: payload.UserName,
           email: payload.Email,
           status: status, 
+          password: payload.Password,
           dataCadastro: new Date().toLocaleDateString("pt-BR"),
         };
       } else {
@@ -134,7 +136,7 @@ const CadastroUsuarioModal: React.FC<CadastroUsuarioModalProps> = ({
               type="password"
               value={password}
               onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-                setEmail(e.target.value)
+                setPassword(e.target.value)
               }
             />
         </div>

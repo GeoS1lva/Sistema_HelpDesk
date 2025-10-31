@@ -93,7 +93,7 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
       <div className="border-t mb-10 border-white/40"></div>
       <form onSubmit={handleSubmit} className="space-y-4">
         <LabeledInput
-          className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+          className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-base"
           label="Nome"
           type="text"
           value={nome}
@@ -104,7 +104,7 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
 
         <div className="flex flex-col md:flex-row gap-4">
           <LabeledInput
-            className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+            className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-base"
             label="CNPJ"
             type="text"
             value={cnpj}
@@ -119,7 +119,7 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setDataCadastro(e.target.value)
             }
-            className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+            className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-base"
           />
         </div>
 
@@ -131,8 +131,7 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
             onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
               setEmail(e.target.value)
             }
-            placeholder="contato@empresa.com"
-            className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+            className="bg-[#606060] h-[42px] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-base"
           />
           <div className="flex-1">
             <label className="block text-sm font-medium text-gray-300 mb-1">
@@ -141,7 +140,7 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="bg-[#606060] border border-[#CAC9CF] text-white rounded-lg p-2 focus:outline-none focus:border-purple-500 w-full h-[42px]"
+              className="bg-[#606060] border border-[#CAC9CF] text-white rounded-lg p-2 focus:outline-none focus:border-purple-500 w-full h-[42px] text-base"
             >
               <option value="Ativo">Ativo</option>
               <option value="Inativo">Inativo</option>
@@ -149,7 +148,6 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
           </div>
         </div>
 
-        {/* Exibição de Erro */}
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
 
