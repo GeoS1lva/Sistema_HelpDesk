@@ -5,20 +5,20 @@ import {
   Navigate,
   Outlet,
 } from "react-router-dom";
-import { useAuth } from "./contexts/AuthContext";
-import { AuthProvider } from "./contexts/AuthContext";
-import LoginPage from "./pages/LoginPage";
-import RedefinicaoDeSenha from "./pages/RedefinicaoDeSenha";
-import ProtectedRoute from "./components/auth/ProtectedRoute";
-import Empresas from "./pages/Empresas";
-import EditarEmpresa from './pages/EditarEmpresa';
+import { useAuth } from "./contexts/AuthContext"
+import { AuthProvider } from "./contexts/AuthContext"
+import LoginPage from "./pages/LoginPage"
+import RedefinicaoDeSenha from "./pages/RedefinicaoDeSenha"
+import ProtectedRoute from "./components/auth/ProtectedRoute"
+import Empresas from "./pages/Empresas"
+import EditarEmpresa from './pages/EditarEmpresa'
 import EditarUsuario from './pages/EditarUsuario'
-import AlterarSenha from "./pages/AlterarSenha";
-import Sidebar from "./components/layout/Sidebar";
-import { Tickets } from "lucide-react";
+import AlterarSenha from "./pages/AlterarSenha"
+import Sidebar from "./components/layout/Sidebar"
+import { Tickets } from "lucide-react"
 
 const MainLayout = () => {
-  const { isSidebarExpanded } = useAuth();
+  const { isSidebarExpanded } = useAuth()
   return (
     <div className="flex h-screen bg-[#262626]">
       <Sidebar />

@@ -150,7 +150,6 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
 
         {error && <p className="text-red-400 text-sm text-center">{error}</p>}
 
-
         <div className="flex justify-end gap-4 pt-4">
           <Button
             type="submit"

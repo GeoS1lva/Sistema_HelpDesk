@@ -1,38 +1,37 @@
-import { useState } from 'react'
-import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from 'lucide-react'
-import { useNavigate } from 'react-router-dom';
-import CadastroUsuarioModal from './CadastroUsuarioModal'; 
+import { useState } from "react";
+import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import CadastroUsuarioModal from "./CadastroUsuarioModal";
+import ConfirmationModal from "../ui/ConfirmationModal";
+import apiClient from "../../api/apiClient,";
 
+const USE_MOCK_DATA_DELETE = true;
 interface UsuarioData {
-  id: number
-  nome: string
-  usuario: string
-  email: string
-  dataCadastro: string
-  status: string
+  id: number;
+  nome: string;
+  usuario: string;
+  email: string;
+  dataCadastro: string;
+  status: string;
 }
 
 interface ListaUsuariosProps {
-  usuarios: UsuarioData[]
-  empresaId: number
-  onUsuarioCadastrado: (novoUsuario: UsuarioData) => void
+  usuarios: UsuarioData[];
+  empresaId: number;
+  onUsuarioCadastrado: (novoUsuario: any) => void;
+  onUsuarioDeletado: (id: number) => void
 }
 
-const headers = [
-  'Nome',
-  'E-mail',
-  'Status',
-  'Ações',
-];
+const headers = ["Nome", "E-mail", "Status", "Ações"];
 
 const StatusBadge = ({ status }: { status: string }) => (
   <span
     className={`
       px-3 py-1 text-base font-semibold rounded-full
       ${
-        status === 'Ativo'
-          ? 'bg-green-600/20 text-green-400'
-          : 'bg-red-600/20 text-red-400'
+        status === "Ativo"
+          ? "bg-green-600/20 text-green-400"
+          : "bg-red-600/20 text-red-400"
       }
     `}
   >
@@ -40,12 +39,54 @@ const StatusBadge = ({ status }: { status: string }) => (
   </span>
 );
 
-const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresaId, onUsuarioCadastrado }) => {
+interface DeleteModalState {
+  isOpen: boolean;
+  id: number | null;
+}
+
+const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({
+  usuarios,
+  empresaId,
+  onUsuarioCadastrado,
+  onUsuarioDeletado,
+}) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const navigate = useNavigate()
-  
+  const navigate = useNavigate();
+  const [deleteModal, setDeleteModal] = useState<DeleteModalState>({
+    isOpen: false,
+    id: null,
+  });
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleDeleteClick = (id: number) => {
+    setDeleteModal({ isOpen: true, id: id });
+  };
+
+  const handleConfirmDelete = async () => {
+    const idToDelete = deleteModal.id;
+    if (!idToDelete) return;
+    setIsDeleting(true);
+
+    try {
+      if (USE_MOCK_DATA_DELETE) {
+        console.log(`Modo Mock: Deletando empresa com ID: ${idToDelete}`);
+        await new Promise((res) => setTimeout(res, 1000));
+      } else {
+        await apiClient.delete(`/api/usuarios/${idToDelete}`);
+      }
+
+      onUsuarioDeletado(idToDelete)
+
+    } catch (err) {
+      console.error("Erro ao deletar usuário:", err);
+    } finally {
+      setDeleteModal({ isOpen: false, id: null });
+      setIsDeleting(false);
+    }
+  };
+
   const gridColsClass =
-    'grid grid-cols-[1.9fr_1.9fr_1.9fr_0.4fr] items-center gap-6 px-5';
+    "grid grid-cols-[1.9fr_1.9fr_1.9fr_0.4fr] items-center gap-6 px-5";
 
   return (
     <div>
@@ -69,17 +110,17 @@ const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresa
           <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
       </div>
-      
-
-      
 
       <div
         className={`${gridColsClass} bg-[#3B3B3B] py-3 rounded-t-lg text-base font-semibold text-white shadow-gray-100`}
       >
         {headers.map((header) => (
-          <div key={header} className="flex items-center space-x-1 font-extrabold">
+          <div
+            key={header}
+            className="flex items-center space-x-1 font-extrabold"
+          >
             <span>{header}</span>
-            {header !== 'Ações' && (
+            {header !== "Ações" && (
               <ChevronDown className="w-4 h-4 text-purple-500" />
             )}
           </div>
@@ -92,8 +133,12 @@ const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresa
             key={usuario.id}
             className={`${gridColsClass} py-4 text-sm hover:bg-gray-700/50 transition-colors`}
           >
-            <div className="font-medium truncate" title={usuario.nome}>{usuario.nome}</div>
-            <div className="truncate" title={usuario.email}>{usuario.email}</div>
+            <div className="font-medium truncate" title={usuario.nome}>
+              {usuario.nome}
+            </div>
+            <div className="truncate" title={usuario.email}>
+              {usuario.email}
+            </div>
             <div>
               <StatusBadge status={usuario.status} />
             </div>
@@ -103,11 +148,15 @@ const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresa
                   <Eye className="w-5 h-5" />
                 </button> */}
                 <button
-                  onClick={() => navigate(`/usuarios/editar/${usuario.id}`)} 
-                  className="text-gray-400 hover:text-yellow-500">
+                  onClick={() => navigate(`/usuarios/editar/${usuario.id}`)}
+                  className="text-gray-400 hover:text-yellow-500"
+                >
                   <Pencil className="w-5 h-5" />
                 </button>
-                <button className="text-gray-400 hover:text-red-500">
+                <button
+                  onClick={() => handleDeleteClick(usuario.id)}
+                  className="text-gray-400 hover:text-red-500"
+                >
                   <Trash2 className="w-5 h-5" />
                 </button>
               </div>
@@ -115,9 +164,23 @@ const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({ usuarios, empresa
           </div>
         ))}
       </div>
-      
+
       {isModalOpen && (
-        <CadastroUsuarioModal onClose={() => setIsModalOpen(false)} empresaId={empresaId} onSaveSucess={onUsuarioCadastrado} />
+        <CadastroUsuarioModal
+          onClose={() => setIsModalOpen(false)}
+          empresaId={empresaId}
+          onSaveSucess={onUsuarioCadastrado}
+        />
+      )}
+
+      {deleteModal.isOpen && (
+        <ConfirmationModal
+          title="Confirmar Exclusão"
+          message={`Tem certeza que deseja excluir a empresa? Esta ação não pode ser desfeita.`}
+          onClose={() => setDeleteModal({ isOpen: false, id: null })}
+          onConfirm={handleConfirmDelete}
+          isLoading={isDeleting}
+        />
       )}
     </div>
   );

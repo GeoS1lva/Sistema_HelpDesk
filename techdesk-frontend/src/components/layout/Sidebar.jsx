@@ -79,18 +79,18 @@ const Sidebar = () => {
           }`}
         >
           <UserCircle className="w-10 h-10 text-gray-400 flex-shrink-0" />
-            <div
-              className={`truncate transition-all duration-200 text-center ${
-                isSidebarExpanded ? "opacity-100 max-h-40" : "opacity-0 max-h-0"
-              }`}
-            >
-              <p className="font-semibold text-sm truncate" title={user?.name}>
-                {user?.name || "Usuário"}
-              </p>
-              <p className="text-xs text-gray-400 capitalize">
-                {user?.role || "Perfil"}
-              </p>
-            </div>
+          <div
+            className={`truncate transition-all duration-200 text-center ${
+              isSidebarExpanded ? "opacity-100 max-h-40" : "opacity-0 max-h-0"
+            }`}
+          >
+            <p className="font-semibold text-sm truncate" title={user?.name}>
+              {user?.name || "Usuário"}
+            </p>
+            <p className="text-xs text-gray-400 capitalize">
+              {user?.role || "Perfil"}
+            </p>
+          </div>
         </div>
         <button
           onClick={logout}

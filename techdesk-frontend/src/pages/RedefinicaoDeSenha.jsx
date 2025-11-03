@@ -1,36 +1,32 @@
 import React, { useState } from "react";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
-import apiClient from "../api/apiClient,"; 
+import apiClient from "../api/apiClient,";
 
 const RedefinicaoDeSenha = () => {
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [error, setError] = useState("");
-  const [message, setMessage] = useState(""); 
-  const [isLoading, setIsLoading] = useState(false); 
+  const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   const handlePasswordReset = async (e) => {
     e.preventDefault();
     setError("");
-    setMessage(""); 
+    setMessage("");
     setIsLoading(true);
 
-    
     if (!username || !email) {
       setError("Por favor, preencha todos os campos.");
       setIsLoading(false);
       return;
     }
 
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise((resolve) => setTimeout(resolve, 1500));
     setIsLoading(false);
 
-    
     console.log("Solicitação enviada para:", { username, email });
     setMessage("Link de redefinição enviado para o seu e-mail!");
-    
-    
   };
 
   return (
@@ -81,19 +77,14 @@ const RedefinicaoDeSenha = () => {
               <p className="text-red-400 text-sm text-center !mt-4">{error}</p>
             )}
 
-            
             {message && (
-              <p className="text-green-400 text-sm text-center !mt-4">{message}</p>
+              <p className="text-green-400 text-sm text-center !mt-4">
+                {message}
+              </p>
             )}
 
-            
-            
             <div className="pt-6 justify-center items-center flex">
-              <Button 
-                type="submit" 
-                className="w-[298px]"
-                disabled={isLoading}
-              >
+              <Button type="submit" className="w-[298px]" disabled={isLoading}>
                 {isLoading ? "Enviando..." : "Recuperar senha"}
               </Button>
             </div>

@@ -1,24 +1,22 @@
-import React, { useState, useEffect } from "react"
+import React, { useState, useEffect } from "react";
 
-import { useNavigate } from "react-router-dom"
-import apiClient from "../../api/apiClient,"
+import { useNavigate } from "react-router-dom";
+import apiClient from "../../api/apiClient,";
 
-import Input from "../ui/Input"
-import Button from "../ui/Button"
+import Input from "../ui/Input";
+import Button from "../ui/Button";
 
-
-const USE_MOCK_DATA_PUT = true
-
+const USE_MOCK_DATA_PUT = true;
 
 interface FormularioProps {
   initialData: {
-    id: number
-    nome: string
-    cnpj: string
-    email: string
-    status: string
-    dataCadastro: string
-  }
+    id: number;
+    nome: string;
+    cnpj: string;
+    email: string;
+    status: string;
+    dataCadastro: string;
+  };
 }
 
 const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
@@ -36,74 +34,65 @@ const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
 const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
   initialData,
 }) => {
-  const [formData, setFormData] = useState(initialData)
-  const [isDirty, setIsDirty] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-  const navigate = useNavigate()
-
-  
-  useEffect(() => {
-    setFormData(initialData)
-    setIsDirty(false)
-  }, [initialData])
-
+  const [formData, setFormData] = useState(initialData);
+  const [isDirty, setIsDirty] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    
+    setFormData(initialData);
+    setIsDirty(false);
+  }, [initialData]);
+
+  useEffect(() => {
     const hasChanged =
       formData.nome !== initialData.nome ||
       formData.email !== initialData.email ||
-      formData.status !== initialData.status
-    setIsDirty(hasChanged)
-  }, [formData, initialData])
+      formData.status !== initialData.status;
+    setIsDirty(hasChanged);
+  }, [formData, initialData]);
 
-  
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target
+    const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
-  }
+  };
 
-  
   const handleCancel = () => {
-    setFormData(initialData)
-    setError(null)
-    
-  }
+    setFormData(initialData);
+    setError(null);
+  };
 
-  
   const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsLoading(true)
-    setError(null)
+    e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
-    
     const payload = {
       Nome: formData.nome,
       Email: formData.email,
       Status: formData.status === "Ativo" ? 1 : 0,
-    }
+    };
 
     try {
       if (USE_MOCK_DATA_PUT) {
-        console.log("Modo Mock: Simulando PUT", payload)
-        await new Promise((res) => setTimeout(res, 1000))
+        console.log("Modo Mock: Simulando PUT", payload);
+        await new Promise((res) => setTimeout(res, 1000));
       } else {
-        await apiClient.put(`/api/empresas/${formData.id}`, payload)
+        await apiClient.put(`/api/empresas/${formData.id}`, payload);
       }
 
-      
-      setIsDirty(false)
-      setIsLoading(false)
-      navigate("/empresas")
+      setIsDirty(false);
+      setIsLoading(false);
+      navigate("/empresas");
     } catch (err) {
-      console.error("Erro ao salvar alterações:", err)
-      setError("Falha ao salvar. Tente novamente.")
-      setIsLoading(false)
+      console.error("Erro ao salvar alterações:", err);
+      setError("Falha ao salvar. Tente novamente.");
+      setIsLoading(false);
     }
-  }
+  };
 
   return (
     <div className="bg-[#1E1E1E] p-6 rounded-lg shadow-lg border border-gray-800">
@@ -132,7 +121,7 @@ const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
             label="Data de Cadastro"
             name="dataCadastro"
             type="date"
-            value={formData.dataCadastro.split("T")[0]} 
+            value={formData.dataCadastro.split("T")[0]}
             disabled
             className="h-[42px] bg-[#3B3B3B] text-sm border border-gray-600 cursor-not-allowed"
           />
@@ -170,9 +159,9 @@ const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
             <Button
               type="button"
               variant="secondary"
-              onClick={handleCancel} 
+              onClick={handleCancel}
               className="bg-transparent text-red-500 hover:bg-red-500/10 px-4 py-2"
-              disabled={isLoading} 
+              disabled={isLoading}
             >
               Cancelar
             </Button>

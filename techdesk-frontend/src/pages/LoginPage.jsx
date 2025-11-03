@@ -1,19 +1,19 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
 
 
 import apiClient from "../api/apiClient,"; 
-import { useAuth } from "../contexts/AuthContext";
+// import { useAuth } from "../contexts/AuthContext";
+
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  
-  
-  const { login } = useAuth(); 
+
+  // const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async (e) => {
@@ -22,25 +22,29 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const res = await apiClient.post("/api/autenticacao/login", {
-        userName: username, 
+      const res = await apiClient.post("/api/autenticacoes", {
+        username: username,
         password: password,
       });
 
-      if (res.data && redirect.data.userName) {
-        const userData = {
-          name: res.data.userName,
-          role: res.data.Role
-        } 
+      // if (res.data && res.data.UserName) {
+        
+      //   const userData = {
+      //     name: res.data.userName,
+      //     role: res.data.role,
+      //     email: res.data.email
+      //   };
 
-        login(userData)
+      //   login(userData);
         
         window.location.href = "/empresas";
-      } else {
-        setError("API não retornou os dados do usuário.");
-        console.log("Resposta inesperada da API:", res.data)
-      }
+      // } else {
+        
+      //   setError("API não retornou os dados do usuário.");
+      //   console.log("Resposta inesperada da API:", res.data);
+      // }
     } catch (err) {
+      
       setError("Credenciais inválidas. Verifique seu usuário e senha.");
       console.log("Erro no login:", err.response?.data || err.message);
     } finally {

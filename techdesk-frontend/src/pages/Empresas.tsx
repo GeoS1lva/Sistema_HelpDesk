@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from "lucide-react";
-// 1. CORREÇÃO: Removida a vírgula no final do import
 import apiClient from "../api/apiClient,";
 import CadastroEmpresaModal from "../components/empresas/CadastroEmpresaModal";
 import ConfirmationModal from "../components/ui/ConfirmationModal";
 
 const USE_MOCK_DATA_GET = true;
-const USE_MOCK_DATA_POST = true;
 const USE_MOCK_DATA_DELETE = true;
 
 interface EmpresaFromApi {
@@ -24,6 +22,7 @@ interface EmpresaView {
   cnpj: string;
   email: string;
   status: string;
+  dataCriacao: string;
 }
 
 const mockEmpresas: EmpresaView[] = [
@@ -33,6 +32,7 @@ const mockEmpresas: EmpresaView[] = [
     cnpj: "00.000.000/0001-00",
     email: "user@gmail.com",
     status: "Ativo",
+    dataCriacao: "22",
   },
   {
     id: 2,
@@ -40,6 +40,7 @@ const mockEmpresas: EmpresaView[] = [
     cnpj: "11.111.111/0001-11",
     email: "user@gmail.com",
     status: "Inativo",
+    dataCriacao: "22",
   },
 ];
 
@@ -49,6 +50,7 @@ const transformApiToView = (apiData: EmpresaFromApi): EmpresaView => ({
   cnpj: apiData.Cnpj,
   email: apiData.Email,
   status: apiData.Status === 1 ? "Ativo" : "Inativo",
+  dataCriacao: apiData.DataCriacao,
 });
 
 const headers = ["Nome", "CNPJ", "E-mail", "Status", "Ações"];
@@ -97,7 +99,7 @@ const Empresas = () => {
       }
 
       try {
-        const response = await apiClient.get<EmpresaFromApi[]>("/api/Empresas");
+        const response = await apiClient.get<EmpresaFromApi[]>("/api/empresas");
         const transformedData = response.data.map(transformApiToView);
         setEmpresas(transformedData);
       } catch (err) {
@@ -127,22 +129,22 @@ const Empresas = () => {
 
     try {
       if (USE_MOCK_DATA_DELETE) {
-        console.log(`Modo Mock: Deletando empresa com ID: ${idToDelete}`)
-        await new Promise((res) => setTimeout(res, 1000))
+        console.log(`Modo Mock: Deletando empresa com ID: ${idToDelete}`);
+        await new Promise((res) => setTimeout(res, 1000));
       } else {
-        await apiClient.delete(`/api/empresas/${idToDelete}`)
+        await apiClient.delete(`/api/empresas/${idToDelete}`);
       }
 
       setEmpresas((empresasAtuais) =>
         empresasAtuais.filter((empresa) => empresa.id !== idToDelete)
       );
     } catch (err) {
-      console.error("Erro ao deletar empresa:", err)
+      console.error("Erro ao deletar empresa:", err);
     } finally {
-      setDeleteModal({ isOpen: false, id: null })
+      setDeleteModal({ isOpen: false, id: null });
       setIsDeleting(false);
     }
-  }
+  };
 
   const gridColsClass =
     "grid grid-cols-[2.5fr_1.5fr_2fr_1.5fr_0.4fr] items-center gap-6 px-6";
@@ -258,4 +260,3 @@ const Empresas = () => {
 };
 
 export default Empresas;
-
