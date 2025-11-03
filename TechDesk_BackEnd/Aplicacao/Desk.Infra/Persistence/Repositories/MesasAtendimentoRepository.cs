@@ -16,6 +16,16 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
         public void AdicionarTecnicoAMesa(MesaTecnicos relacionamento)
             => _context.MesaTecnicos.Add(relacionamento);
 
+        public async Task AdicionarAdministradorMesas(int administradorId)
+        {
+            var list = await _context.MesasAtendimento.ToListAsync();
+
+            foreach (var item in list)
+            {
+                _context.MesaTecnicos.Add(new MesaTecnicos { MesaAtendimentoId = item.Id, TecnicoId = administradorId});
+            }
+        }
+
         public async Task RemoverMesaAtendimento(MesaAtendimento mesa)
         {
             await RemoverRelacionamentosMesa(mesa.Id);
@@ -35,10 +45,10 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
                              .Select(x => new MesaAtendimentoInformacoes { id = x.Id, Nome = x.Nome })
                              .ToListAsync();
 
-        public async Task<List<string>> RetornarListaMesaTecnico(int IdUser)
+        public async Task<List<string>> RetornarListaMesaTecnico(int idUser)
         {
             List<string> listaNomesMesa = [];
-            var lista = await _context.MesaTecnicos.Where(x => x.TecnicoId == IdUser).ToListAsync();
+            var lista = await _context.MesaTecnicos.Where(x => x.TecnicoId == idUser).ToListAsync();
 
             foreach (var item in lista)
             {

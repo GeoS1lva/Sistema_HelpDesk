@@ -12,8 +12,8 @@ using Sistema_HelpDesk.Desk.Infra.Context;
 namespace Sistema_HelpDesk.Migrations
 {
     [DbContext(typeof(SqlServerIdentityDbContext))]
-    [Migration("20251005153302_CriandoTabelasERelacionamentos")]
-    partial class CriandoTabelasERelacionamentos
+    [Migration("20251103133436_CriandoTabelasEntidades")]
+    partial class CriandoTabelasEntidades
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -164,6 +164,26 @@ namespace Sistema_HelpDesk.Migrations
                     b.ToTable("HorasChamados");
                 });
 
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Categoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Categoria");
+                });
+
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Chamado", b =>
                 {
                     b.Property<int>("Id")
@@ -284,9 +304,6 @@ namespace Sistema_HelpDesk.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
                     b.HasKey("Id");
 
                     b.ToTable("MesasAtendimento");
@@ -305,26 +322,6 @@ namespace Sistema_HelpDesk.Migrations
                     b.HasIndex("TecnicoId");
 
                     b.ToTable("MesaTecnicos");
-                });
-
-            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.Tecnico", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("int");
-
-                    b.Property<long>("HorasTotalAtendimento")
-                        .HasColumnType("bigint");
-
-                    b.Property<string>("Nome")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("Status")
-                        .HasColumnType("bit");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tecnicos");
                 });
 
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.UserLogin", b =>
@@ -428,6 +425,26 @@ namespace Sistema_HelpDesk.Migrations
                     b.ToTable("AspNetRoles", (string)null);
                 });
 
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", b =>
+                {
+                    b.Property<int>("Id")
+                        .HasColumnType("int");
+
+                    b.Property<long>("HorasTotalAtendimento")
+                        .HasColumnType("bigint");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tecnicos");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
                 {
                     b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UserRole", null)
@@ -487,7 +504,7 @@ namespace Sistema_HelpDesk.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.Tecnico", "Tecnico")
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", "Tecnico")
                         .WithMany()
                         .HasForeignKey("TecnicoId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -506,7 +523,7 @@ namespace Sistema_HelpDesk.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.Tecnico", "TecnicoFinalizacao")
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", "TecnicoFinalizacao")
                         .WithMany("Chamados")
                         .HasForeignKey("TecnicoFinalizacaoId")
                         .OnDelete(DeleteBehavior.Restrict)
@@ -552,18 +569,18 @@ namespace Sistema_HelpDesk.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.Tecnico", null)
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", null)
                         .WithMany()
                         .HasForeignKey("TecnicoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.Tecnico", b =>
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", b =>
                 {
                     b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UserLogin", "UserLogin")
-                        .WithOne("Tecnico")
-                        .HasForeignKey("Sistema_HelpDesk.Desk.Domain.Users.Entities.Tecnico", "Id")
+                        .WithOne("UsuarioSitema")
+                        .HasForeignKey("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", "Id")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
@@ -582,16 +599,16 @@ namespace Sistema_HelpDesk.Migrations
                     b.Navigation("Usuarios");
                 });
 
-            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.Tecnico", b =>
-                {
-                    b.Navigation("Chamados");
-                });
-
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.UserLogin", b =>
                 {
-                    b.Navigation("Tecnico");
+                    b.Navigation("UsuarioSitema");
 
                     b.Navigation("UsuariosEmpresa");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", b =>
+                {
+                    b.Navigation("Chamados");
                 });
 #pragma warning restore 612, 618
         }

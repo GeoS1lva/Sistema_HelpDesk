@@ -3,8 +3,8 @@ using Sistema_HelpDesk.Desk.Application.UseCases.Users.DTOs;
 
 namespace Sistema_HelpDesk.Desk.Application.UseCases.Users.Interface
 {
-    public interface ICriarTecnicoUseCase
+    public interface ICriarUsuarioSistemaUseCase
     {
-        public Task<ResultModel> CriarTecnico(UserCriar userTecnico);
+        public Task<ResultModel> CriarUsuario(UserCriar usuario);
     }
 }

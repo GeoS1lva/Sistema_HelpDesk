@@ -6,7 +6,7 @@ namespace Sistema_HelpDesk.Desk.Domain.Mesa.Entities
     public class MesaAtendimento : Entidade
     {
         public string Nome { get; set; }
-        public List<Tecnico> Tecnicos { get; } = [];
+        public List<UsuarioSistema> Tecnico { get; } = [];
 
         public MesaAtendimento(string nome)
         {

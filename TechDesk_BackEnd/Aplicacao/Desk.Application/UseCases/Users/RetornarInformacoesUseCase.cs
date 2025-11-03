@@ -9,13 +9,13 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Users
 {
     public class RetornarInformacoesUseCase(IUnitOfWork unitOfWork) : IRetornarInformacoesUseCase
     {
-        public async Task<ResultModel<UserInformacoes>> RetornarInformacoesUserTecnico(string UserName)
+        public async Task<ResultModel<UserInformacoes>> RetornarInformacoesUsuario(string UserName)
         {
             var infoLogin = await unitOfWork.UserLoginRepository.RetornarLogin(UserName);
             if (infoLogin == null)
                 return ResultModel<UserInformacoes>.Erro("Usuário não encontrado!");
 
-            var infoTecnico = await unitOfWork.TecnicoRepository.RetornarTecnico(infoLogin.Id);
+            var infoTecnico = await unitOfWork.UsuarioEmpresaRepository.RetornarUsuario(infoLogin.Id);
 
             if (infoTecnico == null && infoLogin.TipoPerfil != TipoPerfil.administrador)
                 return ResultModel<UserInformacoes>.Erro("Perfil Tecnico do Usuario não encontrado!");
@@ -31,10 +31,10 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Users
             });
         }
         
-        public async Task<ResultModel<List<UserInformacoes>>> RetornarInformacoesUserTecnicosCriado()
+        public async Task<ResultModel<List<UserInformacoes>>> RetornarInformacoesUsuariosCriado()
         {
             var listarUserLogin = await unitOfWork.UserLoginRepository.RetornarLoginsCriados();
-            var tecnicosInformacoes = await unitOfWork.TecnicoRepository.RetornarTecnicos();
+            var tecnicosInformacoes = await unitOfWork.UsuarioSistemaRepository.RetornarUsuarios();
 
             if (listarUserLogin == null || tecnicosInformacoes == null)
                 return ResultModel<List<UserInformacoes>>.Erro("Nenhum Usuário Cadastrado!");

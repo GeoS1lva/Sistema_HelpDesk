@@ -20,7 +20,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Companies
         {
              var listaEmpresas = await unitOfWork.EmpresaRepository.RetornarListaEmpresas();
 
-            if (listaEmpresas is null)
+            if (listaEmpresas == null)
                 return ResultModel<List<EmpresaInformacoes>>.Erro("Sem Empresas Cadastradas");
 
             return ResultModel<List<EmpresaInformacoes>>.Sucesso(listaEmpresas);

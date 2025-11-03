@@ -45,6 +45,9 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
         public async Task<UsuariosEmpresa?> RetornarUsuario(int id)
             => await _context.UsuariosEmpresa.FirstOrDefaultAsync(x => x.Id == id);
 
+        public async Task<List<UsuariosEmpresa>> RetornarUsuariosEmpresas()
+            => await _context.UsuariosEmpresa.ToListAsync();
+
         public async Task<List<UsuariosEmpresa>> RetornarUsuariosPorEmpresa(int id)
             => await _context.UsuariosEmpresa.Where(x => x.EmpresaId == id).ToListAsync();
     }

@@ -4,7 +4,7 @@ using Sistema_HelpDesk.Desk.Domain.Mesa.Entities;
 
 namespace Sistema_HelpDesk.Desk.Domain.Users.Entities
 {
-    public class Tecnico : Entidade
+    public class UsuarioSistema : Entidade
     {
         public string Nome { get; set; }
         public long HorasTotalAtendimento { get; set; }
@@ -15,7 +15,7 @@ namespace Sistema_HelpDesk.Desk.Domain.Users.Entities
 
         public UserLogin UserLogin { get; set; }
 
-        public Tecnico(int id, string nome)
+        public UsuarioSistema(int id, string nome)
         {
             Id = id;
             Nome = nome;

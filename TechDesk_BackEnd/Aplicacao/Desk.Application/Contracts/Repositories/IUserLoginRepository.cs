@@ -7,6 +7,7 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.Repositories
     {
         public Task CriarLogin(UserLogin userLogin, string passwords, string role);
         public Task BloquearLogin(UserLogin user);
+        public Task<bool> ConfirmarSituacaoUsuario(UserLogin user);
         public Task<UserLogin?> RetornarLogin(string userName);
         public Task<bool> ConfirmarSenhaLogin(UserLogin user, string passwords);
         public Task<IList<string>> RetornarPapeisUser(string userName);

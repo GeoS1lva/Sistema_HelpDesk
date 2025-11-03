@@ -2,8 +2,8 @@
 
 namespace Sistema_HelpDesk.Desk.Application.UseCases.Users.Interface
 {
-    public interface IRemoverTecnicoUseCase
+    public interface IRemoverUsuarioSistemaUseCase
     {
-        public Task<ResultModel> RemoverTecnico(string userName, string userNameRequest);
+        public Task<ResultModel> RemoverUsuario(string userName, string userNameRequest);
     }
 }

@@ -8,7 +8,7 @@ namespace Sistema_HelpDesk.Desk.Domain.Users.Entities
     {
         public TipoPerfil TipoPerfil { get; set; }
 
-        public Tecnico? Tecnico { get; set; }
+        public UsuarioSistema? UsuarioSitema { get; set; }
         public UsuariosEmpresa? UsuariosEmpresa { get; set; }
     }
 }
