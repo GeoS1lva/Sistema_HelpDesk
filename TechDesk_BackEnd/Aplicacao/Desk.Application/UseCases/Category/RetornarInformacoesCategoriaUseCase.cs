@@ -19,7 +19,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Category
 
         public async Task<ResultModel<Categoria>> RetornarCategoria(int id)
         {
-            var result = await unitOfWork.CategoriaRepository.RetonarCategoria(id);
+            var result = await unitOfWork.CategoriaRepository.RetornarCategoria(id);
 
             if (result == null)
                 return ResultModel<Categoria>.Erro("O Sistema não possui essa Categoria Cadastrada!");

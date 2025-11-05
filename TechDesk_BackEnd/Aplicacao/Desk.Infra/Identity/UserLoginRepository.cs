@@ -42,6 +42,8 @@ namespace Sistema_HelpDesk.Desk.Infra.Identity
 
         public async Task<UserLogin?> RetornarLogin(string userName)
             => await _userManager.FindByNameAsync(userName);
+        public async Task<UserLogin?> RetornarLogin(int id)
+            => await _userManager.FindByIdAsync(id.ToString());
 
         public async Task<bool> ConfirmarSenhaLogin(UserLogin user, string passwords)
             => await _userManager.CheckPasswordAsync(user, passwords);

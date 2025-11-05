@@ -6,6 +6,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Autenticação
 {
     public interface IAutheUseCase
     {
-        public Task<ResultModel<string>> FazerLogin(LoginUserAcessar dto);
+        public Task<ResultModel<string>> FazerLoginSistema(LoginUserAcessar dto);
+        public Task<ResultModel<string>> FazerLoginPainel(LoginUserAcessar dto);
     }
 }

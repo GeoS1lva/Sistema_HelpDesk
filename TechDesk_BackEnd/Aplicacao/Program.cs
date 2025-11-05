@@ -15,6 +15,8 @@ using Sistema_HelpDesk.Desk.Application.UseCases.Companies;
 using Sistema_HelpDesk.Desk.Application.UseCases.Companies.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks;
 using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks.Interface;
+using Sistema_HelpDesk.Desk.Application.UseCases.Tickets;
+using Sistema_HelpDesk.Desk.Application.UseCases.Tickets.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users.ResetPasswords;
@@ -28,6 +30,7 @@ using Sistema_HelpDesk.Desk.Infra.Identity;
 using Sistema_HelpDesk.Desk.Infra.Persistence.Repositories;
 using Sistema_HelpDesk.Desk.Infra.Persistence.UnitOfWork;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -123,6 +126,8 @@ builder.Services.AddScoped<ICriarCategoriaUseCase, CriarCategoriaUseCase>();
 builder.Services.AddScoped<IDeletarAtivarCategoriaUseCase, DeletarAtivarCategoriaUseCase>();
 builder.Services.AddScoped<IRetornarInformacoesCategoriaUseCase, RetornarInformacoesCategoriaUseCase>();
 
+builder.Services.AddScoped<ICriarChamadoUseCase, CriarChamadoUseCase>();
+
 builder.Services.AddScoped<IRolesRepositorys, RolesRepositorys>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -148,7 +153,11 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(s =>

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Sistema_HelpDesk.Desk.Infra.Context;
 
@@ -11,9 +12,11 @@ using Sistema_HelpDesk.Desk.Infra.Context;
 namespace Sistema_HelpDesk.Migrations
 {
     [DbContext(typeof(SqlServerIdentityDbContext))]
-    partial class SqlServerIdentityDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251105123432_CriandoAtributoChamadoPrioridade")]
+    partial class CriandoAtributoChamadoPrioridade
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -215,10 +218,6 @@ namespace Sistema_HelpDesk.Migrations
                     b.Property<int>("EmpresaId")
                         .HasColumnType("int");
 
-                    b.Property<string>("NumeroChamado")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(450)");
-
                     b.Property<int>("Prioridade")
                         .HasColumnType("int");
 
@@ -240,9 +239,6 @@ namespace Sistema_HelpDesk.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("EmpresaId");
-
-                    b.HasIndex("NumeroChamado")
-                        .IsUnique();
 
                     b.HasIndex("TecnicoAberturaChamadoId");
 

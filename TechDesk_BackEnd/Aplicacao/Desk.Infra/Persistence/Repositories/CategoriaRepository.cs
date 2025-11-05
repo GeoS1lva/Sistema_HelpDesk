@@ -37,7 +37,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
         public async Task<List<Categoria>?> RetornarCategorias()
             => await _context.Categoria.ToListAsync();
 
-        public async Task<Categoria?> RetonarCategoria(int id)
+        public async Task<Categoria?> RetornarCategoria(int id)
             => await _context.Categoria.FirstOrDefaultAsync(x => x.Id == id);
 
         public async Task<bool> ConsultarCategoria(string nome)

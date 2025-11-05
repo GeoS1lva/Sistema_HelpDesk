@@ -11,7 +11,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Autenticação
 {
     public class AutheUseCase(IUnitOfWork unitOfWork, IJwtGerador jwt) : IAutheUseCase
     {
-        public async Task<ResultModel<string>> FazerLogin(LoginUserAcessar dto)
+        public async Task<ResultModel<string>> FazerLoginSistema(LoginUserAcessar dto)
         {
             var user = await unitOfWork.UserLoginRepository.RetornarLogin(dto.UserName);
 
@@ -23,6 +23,30 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Autenticação
 
             if (user.TipoPerfil == TipoPerfil.usuario)
                 return ResultModel<string>.Erro("Credenciais Inválidas. Acesse o Portal do Cliente para abertura de chamado!");
+
+            var result = await unitOfWork.UserLoginRepository.ConfirmarSenhaLogin(user, dto.Password);
+
+            if (!result)
+                return ResultModel<string>.Erro("Credenciais Inválidas."); ;
+
+            var roles = await unitOfWork.UserLoginRepository.RetornarPapeisUser(user.UserName);
+            var token = jwt.GeradorJwt(user, roles);
+
+            return ResultModel<string>.Sucesso(token);
+        }
+
+        public async Task<ResultModel<string>> FazerLoginPainel(LoginUserAcessar dto)
+        {
+            var user = await unitOfWork.UserLoginRepository.RetornarLogin(dto.UserName);
+
+            if (user is null)
+                return ResultModel<string>.Erro("Credenciais Inválidas.");
+
+            if (await unitOfWork.UserLoginRepository.ConfirmarSituacaoUsuario(user))
+                return ResultModel<string>.Erro("Usuário Bloqueado!");
+
+            if (user.TipoPerfil != TipoPerfil.usuario)
+                return ResultModel<string>.Erro("Credenciais Inválidas.");
 
             var result = await unitOfWork.UserLoginRepository.ConfirmarSenhaLogin(user, dto.Password);
 

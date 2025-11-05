@@ -52,6 +52,10 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
                 .HasForeignKey<UsuariosEmpresa>(x => x.Id);
 
             modelBuilder.Entity<Chamado>()
+                .HasIndex(c => c.NumeroChamado)
+                .IsUnique();
+
+            modelBuilder.Entity<Chamado>()
                 .HasOne(x => x.Empresa)
                 .WithMany(e => e.Chamados)
                 .HasForeignKey(x => x.EmpresaId)

@@ -9,6 +9,7 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.Repositories
         public Task BloquearLogin(UserLogin user);
         public Task<bool> ConfirmarSituacaoUsuario(UserLogin user);
         public Task<UserLogin?> RetornarLogin(string userName);
+        public Task<UserLogin?> RetornarLogin(int id);
         public Task<bool> ConfirmarSenhaLogin(UserLogin user, string passwords);
         public Task<IList<string>> RetornarPapeisUser(string userName);
         public Task<string> TokenResetSenha(UserLogin user);

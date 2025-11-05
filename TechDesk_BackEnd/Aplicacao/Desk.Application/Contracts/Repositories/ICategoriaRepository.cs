@@ -8,7 +8,7 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.Repositories
         public Task<bool> DesativarCategoria(int id);
         public Task<bool> AtivarCategoria(int id);
         public Task<List<Categoria>?> RetornarCategorias();
-        public Task<Categoria?> RetonarCategoria(int id);
+        public Task<Categoria?> RetornarCategoria(int id);
         public Task<bool> ConsultarCategoria(string nome);
     }
 }

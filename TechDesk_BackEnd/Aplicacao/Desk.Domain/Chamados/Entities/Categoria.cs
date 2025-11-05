@@ -1,4 +1,5 @@
-﻿using Sistema_HelpDesk.Desk.Domain.Common;
+﻿using Sistema_HelpDesk.Desk.Domain.Chamados.Enums;
+using Sistema_HelpDesk.Desk.Domain.Common;
 
 namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
 {
@@ -6,6 +7,7 @@ namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
     {
         public string Nome { get; set; } = nome;
         public bool Status { get; set; } = true;
+        public Prioridade Prioridade { get; set; }
 
         public void Ativo()
             => Status = true;

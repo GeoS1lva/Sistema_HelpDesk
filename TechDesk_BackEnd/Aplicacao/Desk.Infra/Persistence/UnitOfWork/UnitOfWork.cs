@@ -16,6 +16,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.UnitOfWork
         public IUsuarioEmpresaRepository UsuarioEmpresaRepository { get; } = new UsuarioEmpresaRepository(context, userManager);
         public IMesasAtendimentosRepository MesasAtendimentosRepository { get; set; } = new MesasAtendimentoRepository(context);
         public ICategoriaRepository CategoriaRepository { get; set; } = new CategoriaRepository(context);
+        public IChamadoRepository ChamadoRepository { get; set; } = new ChamadoRepository(context);
 
         public async Task SaveChangesAsync()
             => await context.SaveChangesAsync();

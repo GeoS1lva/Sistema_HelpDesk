@@ -15,9 +15,9 @@ namespace Sistema_HelpDesk.Controllers.Autenticação
     {
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginUserAcessar dto)
+        public async Task<IActionResult> LoginSistema([FromBody] LoginUserAcessar dto)
         {
-            var result = await service.FazerLogin(dto);
+            var result = await service.FazerLoginSistema(dto);
 
             if(result.Error)
                 return BadRequest(result.ErrorMessage);
@@ -32,7 +32,27 @@ namespace Sistema_HelpDesk.Controllers.Autenticação
 
             return Ok();
         }
-        
+
+        [AllowAnonymous]
+        [HttpPost("painel-chamado")]
+        public async Task<IActionResult> LoginPainel([FromBody] LoginUserAcessar dto)
+        {
+            var result = await service.FazerLoginPainel(dto);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            Response.Cookies.Append("jwt", result.Value, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddMinutes(480)
+            });
+
+            return Ok();
+        }
+
         [HttpDelete]
         [Authorize]
         public async Task<IActionResult> EncerarSessao()

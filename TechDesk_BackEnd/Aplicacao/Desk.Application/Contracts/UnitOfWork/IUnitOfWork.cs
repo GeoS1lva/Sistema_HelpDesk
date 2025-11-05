@@ -12,6 +12,7 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.UnitOfWork
         public IUsuarioEmpresaRepository UsuarioEmpresaRepository { get; }
         public IMesasAtendimentosRepository MesasAtendimentosRepository { get; set; }
         public ICategoriaRepository CategoriaRepository { get; set; }
+        public IChamadoRepository ChamadoRepository { get; set; }
         public Task SaveChangesAsync();
     }
 }
