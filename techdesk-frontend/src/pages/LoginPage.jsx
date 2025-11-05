@@ -2,6 +2,7 @@ import { useState } from "react";
 
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import { useNavigate } from "react-router-dom";
 
 
 import apiClient from "../api/apiClient,"; 
@@ -12,6 +13,7 @@ const LoginPage = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const navigate = useNavigate()
 
   // const { login } = useAuth()
   const [isLoading, setIsLoading] = useState(false);
@@ -87,8 +89,8 @@ const LoginPage = () => {
               />
               <div className="flex justify-end mt-2">
                 <a
-                  href="#"
-                  className="text-[#5D1ACE] text-[10px] sm:text-xs font-semibold hover:underline"
+                  onClick={() => navigate('/redefinir-senha')}
+                  className="text-[#5D1ACE] text-[10px] sm:text-xs font-semibold hover:underline cursor-pointer"
                 >
                   Esqueci minha senha
                 </a>

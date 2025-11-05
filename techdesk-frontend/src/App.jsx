@@ -15,7 +15,8 @@ import EditarEmpresa from './pages/EditarEmpresa'
 import EditarUsuario from './pages/EditarUsuario'
 import AlterarSenha from "./pages/AlterarSenha"
 import Sidebar from "./components/layout/Sidebar"
-import { Tickets } from "lucide-react"
+import TicketCard from "./components/tickets/TicketCard";
+import Tickets from "./pages/Tickets";
 
 const MainLayout = () => {
   const { isSidebarExpanded } = useAuth()
@@ -51,7 +52,7 @@ function App() {
           >
             <Route index element={<Navigate to="/empresas" replace />} />
 
-            {/* <Route path="Tickets" element={<Tickets />} /> */}
+            <Route path="tickets" element={<Tickets />} />
             <Route path="empresas" element={<Empresas />} />
             <Route path="empresas/editar/:id" element={<EditarEmpresa />} />
             <Route path="usuarios/editar/:userId" element={<EditarUsuario />} />
@@ -61,7 +62,7 @@ function App() {
             {/* <Route path="tecnicos" element={<Tecnicos />} /> */}
             {/* <Route path="mesas" element={<Mesas />} /> */}
           </Route>
-
+          <Route index element={<Navigate to="/tickets" replace />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </BrowserRouter>

@@ -15,7 +15,7 @@ const SidebarLink = ({ to, icon: Icon, children, isExpanded }) => {
         ${isExpanded ? "w-full" : "w-full justify-center"} 
         ${
           isActive
-            ? "bg-[#381178] text-white"
+            ? "bg-[#381178] text-white "
             : "text-white hover:bg-purple-600 hover:text-white"
         }    
       `}
@@ -56,7 +56,7 @@ const Sidebar = () => {
         />
       </div>
 
-      <nav className={`flex-1 space-y-2 px-4`}>
+      <nav className={`flex-1 space-y-2 px-5`}>
         <SidebarLink to="/tickets" icon={Ticket} isExpanded={isSidebarExpanded}>
           Tickets
         </SidebarLink>
@@ -75,7 +75,7 @@ const Sidebar = () => {
           className={`flex items-center ${
             isSidebarExpanded
               ? "space-x-3"
-              : "justify-center flex-col space-y-2"
+              : "justify-center flex-col space-y-1"
           }`}
         >
           <UserCircle className="w-10 h-10 text-gray-400 flex-shrink-0" />
