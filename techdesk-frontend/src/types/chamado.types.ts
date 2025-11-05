@@ -5,7 +5,9 @@ export interface ChamadoFromApi {
   Descricao: string;
   Status: number; 
   Prioridade: number; 
-  EmpresaNome: string; 
+  EmpresaNome: string;
+  MesaNome: string
+  SlaStatus: string 
   TecnicoNome?: string; 
 }
 
@@ -16,6 +18,8 @@ export interface ChamadoView {
   status: 'Aberto' | 'Em Atendimento' | 'Pausado' | 'Concluído';
   prioridade: "Baixa" | "Média" | "Alta";
   clienteNome: string;
+  mesaNome: string
+  slaStatus: string
   tecnicoNome: string;
 }
 
@@ -46,5 +50,7 @@ export const transformChamadoApiToView = (apiData: ChamadoFromApi): ChamadoView 
   status: mapStatus(apiData.Status),
   prioridade: mapPrioridade(apiData.Prioridade),
   clienteNome: apiData.EmpresaNome,
+  mesaNome: apiData.MesaNome,
+  slaStatus: apiData.SlaStatus,
   tecnicoNome: apiData.TecnicoNome || 'Não atribuído', 
 });
