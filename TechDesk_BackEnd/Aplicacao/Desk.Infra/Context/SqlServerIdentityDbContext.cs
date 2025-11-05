@@ -11,13 +11,14 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
     {
         public SqlServerIdentityDbContext(DbContextOptions<SqlServerIdentityDbContext> options) : base(options) { }
 
-        public DbSet<Tecnico> Tecnicos { get; set; }
+        public DbSet<UsuarioSistema> Tecnicos { get; set; }
         public DbSet<UsuariosEmpresa> UsuariosEmpresa { get; set; }
         public DbSet<Empresa> Empresas { get; set; }
         public DbSet<Chamado> Chamados { get; set; }
         public DbSet<ApontamentoHorasChamado> HorasChamados { get; set; }
         public DbSet<MesaAtendimento> MesasAtendimento { get; set; }
         public DbSet<MesaTecnicos> MesaTecnicos { get; set; }
+        public DbSet<Categoria> Categoria { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,17 +27,17 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
             modelBuilder.Entity<UserLogin>()
                 .HasKey(x => x.Id);
 
-            modelBuilder.Entity<Tecnico>()
+            modelBuilder.Entity<UsuarioSistema>()
                 .HasKey(x => x.Id);
 
-            modelBuilder.Entity<Tecnico>()
+            modelBuilder.Entity<UsuarioSistema>()
                 .Property(x => x.Id)
                 .ValueGeneratedNever();
 
-            modelBuilder.Entity<Tecnico>()
+            modelBuilder.Entity<UsuarioSistema>()
                 .HasOne(x => x.UserLogin)
-                .WithOne(x => x.Tecnico)
-                .HasForeignKey<Tecnico>(x => x.Id);
+                .WithOne(x => x.UsuarioSitema)
+                .HasForeignKey<UsuarioSistema>(x => x.Id);
 
             modelBuilder.Entity<UsuariosEmpresa>()
                 .HasKey(x => x.Id);
@@ -69,7 +70,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MesaAtendimento>()
-                .HasMany(x => x.Tecnicos)
+                .HasMany(x => x.Tecnico)
                 .WithMany(t => t.Mesas)
                 .UsingEntity<MesaTecnicos>();
 

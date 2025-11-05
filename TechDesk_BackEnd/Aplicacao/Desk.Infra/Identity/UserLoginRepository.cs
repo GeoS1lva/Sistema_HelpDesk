@@ -13,8 +13,21 @@ namespace Sistema_HelpDesk.Desk.Infra.Identity
 
         public async Task CriarLogin(UserLogin userLogin, string passwords, string role)
         {
-            await _userManager.CreateAsync(userLogin, passwords);
-            await _userManager.AddToRoleAsync(userLogin, role);
+            var result = await _userManager.CreateAsync(userLogin, passwords);
+
+            if (!result.Succeeded)
+            {
+                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Erro ao criar usuário: {errors}");
+            }
+
+            var roleResult = await _userManager.AddToRoleAsync(userLogin, role);
+
+            if (!roleResult.Succeeded)
+            {
+                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
+                throw new InvalidOperationException($"Erro ao adicionar role: {errors}");
+            }
         }
 
         public async Task BloquearLogin(UserLogin user)
@@ -23,6 +36,9 @@ namespace Sistema_HelpDesk.Desk.Infra.Identity
             await _userManager.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
             await _userManager.AccessFailedAsync(user);
         }
+
+        public async Task<bool> ConfirmarSituacaoUsuario(UserLogin user)
+            => await _userManager.IsLockedOutAsync(user);
 
         public async Task<UserLogin?> RetornarLogin(string userName)
             => await _userManager.FindByNameAsync(userName);

@@ -8,6 +8,7 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.Repositories
         public Task<bool> RemoverUsuarioEmpresa(int id);
         public Task<bool> RemoverTodosUsuarioPorEmpresa(int empresaId);
         public Task<UsuariosEmpresa?> RetornarUsuario(int id);
+        public Task<List<UsuariosEmpresa>> RetornarUsuariosEmpresas();
         public Task<List<UsuariosEmpresa>> RetornarUsuariosPorEmpresa(int id);
     }
 }

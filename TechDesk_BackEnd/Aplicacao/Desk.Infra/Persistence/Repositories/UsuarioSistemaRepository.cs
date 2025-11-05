@@ -7,32 +7,32 @@ using Sistema_HelpDesk.Desk.Infra.Context;
 
 namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
 {
-    public class TecnicoRepository(SqlServerIdentityDbContext context, UserManager<UserLogin> userManager) : ITecnicoRepository
+    public class UsuarioSistemaRepository(SqlServerIdentityDbContext context, UserManager<UserLogin> userManager) : IUsuarioSistemaRepository
     {
         private readonly SqlServerIdentityDbContext _context = context;
 
-        public void AdicionarTecnico(Tecnico tecnico)
-            => _context.Tecnicos.Add(tecnico);
+        public void AdicionarUsuario(UsuarioSistema usuario)
+            => _context.Tecnicos.Add(usuario);
 
-        public async Task<bool> RemoverTecnico(int id)
+        public async Task<bool> RemoverUsuario(int id)
         {
-            var tecnico = await _context.Tecnicos.FirstOrDefaultAsync(x => x.Id == id);
+            var usuario = await _context.Tecnicos.FirstOrDefaultAsync(x => x.Id == id);
 
-            if (tecnico is null)
+            if (usuario is null)
                 return false;
 
-            tecnico.Desativado();
+            usuario.Desativado();
 
             return true;
         }
 
-        public async Task<Tecnico?> RetornarTecnico(int id)
+        public async Task<UsuarioSistema?> RetornarUsuario(int id)
             => await _context.Tecnicos.FirstOrDefaultAsync(x => x.Id == id);
 
-        public async Task<List<Tecnico>> RetornarTecnicos()
+        public async Task<List<UsuarioSistema>> RetornarUsuarios()
             => await _context.Tecnicos.ToListAsync();
 
-        public async Task<List<Tecnico>> RetornarTecnicosAtivos()
+        public async Task<List<UsuarioSistema>> RetornarUsuariosAtivos()
             => await _context.Tecnicos.Where(x => x.Status == true).OrderBy(x => x.Nome).ToListAsync();
     }
 }

@@ -9,13 +9,13 @@ namespace Sistema_HelpDesk.Controllers.Users
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class tecnicosController(ICriarTecnicoUseCase criarTecnico, IRemoverTecnicoUseCase removerTecnico, IRetornarInformacoesUseCase informacoesTecnicos) : ControllerBase
+    public class tecnicosController(ICriarUsuarioSistemaUseCase criarTecnico, IRemoverUsuarioSistemaUseCase removerTecnico, IRetornarInformacoesUseCase informacoesTecnicos) : ControllerBase
     {
         [HttpPost]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> Cadastrar([FromBody] UserCriar userTecnico)
         {
-            var result = await criarTecnico.CriarTecnico(userTecnico);
+            var result = await criarTecnico.CriarUsuario(userTecnico);
 
             if(result.Error)
                 return BadRequest(result.ErrorMessage);
@@ -29,7 +29,7 @@ namespace Sistema_HelpDesk.Controllers.Users
         {
             var userRequest = User.Identity.Name ?? User.FindFirstValue(ClaimTypes.Name);
 
-            var result = await removerTecnico.RemoverTecnico(userName, userRequest);
+            var result = await removerTecnico.RemoverUsuario(userName, userRequest);
 
             if (result.Error)
                 return BadRequest(result.ErrorMessage);
@@ -41,7 +41,7 @@ namespace Sistema_HelpDesk.Controllers.Users
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> RetornarInformacoesTecnico([Required] string userName)
         {
-            var result = await informacoesTecnicos.RetornarInformacoesUserTecnico(userName);
+            var result = await informacoesTecnicos.RetornarInformacoesUsuario(userName);
 
             if (result.Error)
                 return BadRequest(result.ErrorMessage);
@@ -53,7 +53,7 @@ namespace Sistema_HelpDesk.Controllers.Users
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> RetornarInformacoesUsuarios()
         {
-            var result = await informacoesTecnicos.RetornarInformacoesUserTecnicosCriado();
+            var result = await informacoesTecnicos.RetornarInformacoesUsuariosCriado();
 
             if (result.Error)
                 return BadRequest(result.ErrorMessage);

@@ -9,6 +9,8 @@ using Sistema_HelpDesk.Desk.Application.Contracts.Repositories;
 using Sistema_HelpDesk.Desk.Application.Contracts.Security;
 using Sistema_HelpDesk.Desk.Application.Contracts.UnitOfWork;
 using Sistema_HelpDesk.Desk.Application.UseCases.Autenticação;
+using Sistema_HelpDesk.Desk.Application.UseCases.Category;
+using Sistema_HelpDesk.Desk.Application.UseCases.Category.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.Companies;
 using Sistema_HelpDesk.Desk.Application.UseCases.Companies.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks;
@@ -23,6 +25,7 @@ using Sistema_HelpDesk.Desk.Infra.Autenticação;
 using Sistema_HelpDesk.Desk.Infra.Context;
 using Sistema_HelpDesk.Desk.Infra.Email;
 using Sistema_HelpDesk.Desk.Infra.Identity;
+using Sistema_HelpDesk.Desk.Infra.Persistence.Repositories;
 using Sistema_HelpDesk.Desk.Infra.Persistence.UnitOfWork;
 using System.Text;
 
@@ -101,8 +104,8 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 builder.Services.AddScoped<IResetarSenhaUseCase, ResetarSenhaUseCase>();
 builder.Services.AddScoped<IAutheUseCase, AutheUseCase>();
 
-builder.Services.AddScoped<ICriarTecnicoUseCase, CriarTecnicoUseCase>();
-builder.Services.AddScoped<IRemoverTecnicoUseCase, RemoverTecnicoUseCase>();
+builder.Services.AddScoped<ICriarUsuarioSistemaUseCase, CriarUsuarioSistemaUseCase>();
+builder.Services.AddScoped<IRemoverUsuarioSistemaUseCase, RemoverUsuarioSistemaUseCase>();
 builder.Services.AddScoped<IRetornarInformacoesUseCase, RetornarInformacoesUseCase>();
 
 builder.Services.AddScoped<ICrirEmpresaUseCase, CrirEmpresaUseCase>();
@@ -115,6 +118,10 @@ builder.Services.AddScoped<IRetornarInformacoesUsuarioEmpresaUseCase, RetornarIn
 builder.Services.AddScoped<ICriarMesaAtendimentoUseCase, CriarMesaAtendimentoUseCase>();
 builder.Services.AddScoped<IRemoverMesaAtendimentoUseCase, RemoverMesaAtendimentoUseCase>();
 builder.Services.AddScoped<IRetornarInformacoesMesasAtendimentoUseCase, RetornarInformacoesMesasAtendimentoUseCase>();
+
+builder.Services.AddScoped<ICriarCategoriaUseCase, CriarCategoriaUseCase>();
+builder.Services.AddScoped<IDeletarAtivarCategoriaUseCase, DeletarAtivarCategoriaUseCase>();
+builder.Services.AddScoped<IRetornarInformacoesCategoriaUseCase, RetornarInformacoesCategoriaUseCase>();
 
 builder.Services.AddScoped<IRolesRepositorys, RolesRepositorys>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();

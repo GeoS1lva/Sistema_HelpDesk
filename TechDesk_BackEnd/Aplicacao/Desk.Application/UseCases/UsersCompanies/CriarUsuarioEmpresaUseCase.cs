@@ -21,8 +21,10 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.UsersCompanies
             if (!ValidacaoEmail.ValidarEmail(userEmpresa.Email))
                 return ResultModel.Erro("Email Inválido!");
 
-            if (!ValidacaoSenha.Validador(userEmpresa.Password))
-                return ResultModel.Erro("Senha Inválida!");
+            var result = ValidacaoSenha.Validador(userEmpresa.Password);
+
+            if (result.Error)
+                return ResultModel.Erro(result.ErrorMessage);
 
             await unitOfWork.UserLoginRepository.CriarLogin(new UserLogin { UserName = userEmpresa.UserName, Email = userEmpresa.Email, TipoPerfil = Domain.Users.Enum.TipoPerfil.usuario }, userEmpresa.Password, "Usuario");
 

@@ -7,6 +7,7 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.Repositories
     {
         public void AdicionarMesaAtendimento(MesaAtendimento mesa);
         public void AdicionarTecnicoAMesa(MesaTecnicos relacionamento);
+        public Task AdicionarAdministradorMesas(int administradorId);
         public Task RemoverMesaAtendimento(MesaAtendimento mesa);
         public Task<bool> ConfirmarMesaCadastrada(int id);
         public Task<bool> ConfirmarMesaCadastrada(string nome);

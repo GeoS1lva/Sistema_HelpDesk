@@ -25,7 +25,7 @@ namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
         public UsuariosEmpresa UsuarioEmpresa { get; set; }
 
         public int TecnicoFinalizacaoId { get; private set; }
-        public Tecnico TecnicoFinalizacao { get; set; }
+        public UsuarioSistema TecnicoFinalizacao { get; set; }
 
         public ICollection<ApontamentoHorasChamado> Apontamentos { get; set; }
 
@@ -44,10 +44,10 @@ namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
         public ResultModel FinalizarChamado(int tecnicoId, string comentarioFinalizacao)
         {
             if (Status == Status.aberto)
-                ResultModel.Erro("Chamado Não Iniciado");
+                return ResultModel.Erro("Chamado Não Iniciado");
 
             if (Status == Status.finalizado)
-                ResultModel.Erro("Chamado Já Finalizado");
+                return ResultModel.Erro("Chamado Já Finalizado");
 
             Status = Status.finalizado;
             TecnicoFinalizacaoId = tecnicoId;

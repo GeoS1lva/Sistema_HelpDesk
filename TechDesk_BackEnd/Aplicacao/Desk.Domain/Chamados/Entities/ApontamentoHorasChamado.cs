@@ -14,7 +14,7 @@ namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
         public string Comentario { get; set; }
 
         public int TecnicoId { get; private set; }
-        public Tecnico Tecnico { get; set; }
+        public UsuarioSistema Tecnico { get; set; }
 
         public ApontamentoHorasChamado(int chamadoId, int tecnicoId)
         {
