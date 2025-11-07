@@ -22,6 +22,18 @@ namespace Sistema_HelpDesk.Controllers.Category
             return Ok();
         }
 
+        [HttpPost("subCategoria")]
+        [Authorize(Roles = "Administrador,Tecnico")]
+        public async Task<IActionResult> CadastrarSubCategoria([Required] List<SubCategoriaCriar> subCategorias, [Required] int categoriaId)
+        {
+            var result = await criarCategoria.AdicionarSubCategorias(subCategorias, categoriaId);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok();
+        }
+
         [HttpDelete("{id}")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DesativarCategoria([Required] int id)

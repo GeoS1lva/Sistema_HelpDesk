@@ -1,4 +1,5 @@
 ﻿using Sistema_HelpDesk.Desk.Application.CommomResult;
+using Sistema_HelpDesk.Desk.Domain.Chamados.Entities;
 using Sistema_HelpDesk.Desk.Domain.Chamados.Enums;
 using Sistema_HelpDesk.Desk.Domain.Common;
 using Sistema_HelpDesk.Desk.Domain.Empresas.Entidades;
@@ -14,7 +15,8 @@ namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
         public string Assunto { get; private set; }
         public string Descricao { get; private set; }
         public int CategoriaId { get; private set; }
-        public Prioridade Prioridade { get; private set; }
+        public SubCategoria SubCategoria { get; private set; }
+        public StatusSla StatusSLA { get; set; }
 
         public DateTime DataCriacao { get; private set; }
 
@@ -38,34 +40,36 @@ namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
 
         public ICollection<ApontamentoHorasChamado> Apontamentos { get; set; }
 
-        public Chamado(string assunto, string descricao, Categoria categoria, int empresaId, int usuarioEmpresaId)
+        public Chamado(string assunto, string descricao, int categoriaId, SubCategoria subCategoria, int empresaId, int usuarioEmpresaId)
         {
             NumeroChamado = $"CH{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(1000, 9999)}";
 
             Assunto = assunto;
             Descricao = descricao;
-            CategoriaId = categoria.Id;
-            Prioridade = categoria.Prioridade;
+            CategoriaId = categoriaId;
+            SubCategoria = subCategoria;
             EmpresaId = empresaId;
             UsuarioEmpresaId = usuarioEmpresaId;
 
+            StatusSLA = StatusSla.naoIniciado;
             DataCriacao = DateTime.UtcNow;
             Status = Status.aberto;
             TempoAtendimentoTotal = 0;
         }
 
-        public Chamado(string assunto, string descricao, Categoria categoria, int empresaId, int usuarioEmpresaId, int tecnicoAberturaChamadoId)
+        public Chamado(string assunto, string descricao, int categoriaId, SubCategoria subCategoria, int empresaId, int usuarioEmpresaId, int tecnicoAberturaChamadoId)
         {
             NumeroChamado = $"CH{DateTime.UtcNow:yyyyMMdd}-{Random.Shared.Next(1000, 9999)}";
 
             Assunto = assunto;
             Descricao = descricao;
-            CategoriaId = categoria.Id;
-            Prioridade = categoria.Prioridade;
+            CategoriaId = categoriaId;
+            SubCategoria = subCategoria;
             EmpresaId = empresaId;
             UsuarioEmpresaId = usuarioEmpresaId;
             TecnicoAberturaChamadoId = tecnicoAberturaChamadoId;
 
+            StatusSLA = StatusSla.naoIniciado;
             DataCriacao = DateTime.UtcNow;
             Status = Status.aberto;
             TempoAtendimentoTotal = 0;

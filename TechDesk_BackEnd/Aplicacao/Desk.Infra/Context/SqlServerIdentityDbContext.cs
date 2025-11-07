@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Sistema_HelpDesk.Desk.Domain.Chamados.Entidades;
+using Sistema_HelpDesk.Desk.Domain.Chamados.Entities;
 using Sistema_HelpDesk.Desk.Domain.Empresas.Entidades;
 using Sistema_HelpDesk.Desk.Domain.Mesa.Entities;
 using Sistema_HelpDesk.Desk.Domain.Users.Entities;
@@ -19,6 +20,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
         public DbSet<MesaAtendimento> MesasAtendimento { get; set; }
         public DbSet<MesaTecnicos> MesaTecnicos { get; set; }
         public DbSet<Categoria> Categoria { get; set; }
+        public DbSet<SubCategoria> SubCategoria { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -89,6 +91,12 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
                 .WithMany()
                 .HasForeignKey(x => x.TecnicoId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Categoria>()
+                .HasMany(c => c.SubCategorias)
+                .WithOne(x => x.Categoria)
+                .HasForeignKey(s => s.CategoriaId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

@@ -2,8 +2,11 @@
 
 namespace Sistema_HelpDesk.Desk.Application.UseCases.Category.DTOs
 {
-    public class CategoriaCriar
+    public class SubCategoriaCriar
     {
         public string Nome { get; set; }
+        public Prioridade Prioridade { get; set; }
+        public int SLA { get; set; }
+
     }
 }

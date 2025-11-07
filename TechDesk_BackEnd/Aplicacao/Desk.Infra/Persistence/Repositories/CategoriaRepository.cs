@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Sistema_HelpDesk.Desk.Application.Contracts.Repositories;
+using Sistema_HelpDesk.Desk.Application.UseCases.Category.DTOs;
 using Sistema_HelpDesk.Desk.Domain.Chamados.Entidades;
 using Sistema_HelpDesk.Desk.Infra.Context;
 
@@ -19,7 +20,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
             if (categoria == null)
                 return false;
 
-            categoria.Desativado();
+            categoria.Desativar();
             return true;
         }
 
@@ -30,15 +31,31 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
             if (categoria == null)
                 return false;
 
-            categoria.Ativo();
+            categoria.Ativar();
             return true;
         }
 
-        public async Task<List<Categoria>?> RetornarCategorias()
-            => await _context.Categoria.ToListAsync();
+        public async Task<List<CategoriaInformacoesDTO>?> RetornarCategorias()
+            => await _context.Categoria
+                             .Include(c => c.SubCategorias)
+                             .Select(c => new CategoriaInformacoesDTO
+                             {
+                                 Id = c.Id,
+                                 Nome = c.Nome,
+                                 SubCategorias = c.SubCategorias.Select(s => new SubCategoriasInformacoesDTO
+                                 {
+                                     Id = s.Id,
+                                     Nome = s.Nome,
+                                     Prioridade = s.Prioridade,
+                                     SLA = s.SLA
+                                 }).ToList()
+                             }).ToListAsync();
 
-        public async Task<Categoria?> RetornarCategoria(int id)
-            => await _context.Categoria.FirstOrDefaultAsync(x => x.Id == id);
+        public async Task<Categoria?> RetornarCategoria(int categoriaId)
+             => await _context.Categoria.FirstOrDefaultAsync(x => x.Id == categoriaId);
+
+        public async Task<Categoria?> RetornarCategoria(string nome)
+            => await _context.Categoria.FirstOrDefaultAsync(x => x.Nome == nome);
 
         public async Task<bool> ConsultarCategoria(string nome)
             => await _context.Categoria.AnyAsync(x => x.Nome == nome);

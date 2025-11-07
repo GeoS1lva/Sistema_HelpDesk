@@ -12,8 +12,8 @@ using Sistema_HelpDesk.Desk.Infra.Context;
 namespace Sistema_HelpDesk.Migrations
 {
     [DbContext(typeof(SqlServerIdentityDbContext))]
-    [Migration("20251105135903_CriandoAtributoNumeroChamado")]
-    partial class CriandoAtributoNumeroChamado
+    [Migration("20251106201508_CriandoTabelasEntidade")]
+    partial class CriandoTabelasEntidade
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -176,9 +176,6 @@ namespace Sistema_HelpDesk.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("Prioridade")
-                        .HasColumnType("int");
-
                     b.Property<bool>("Status")
                         .HasColumnType("bit");
 
@@ -222,10 +219,13 @@ namespace Sistema_HelpDesk.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(450)");
 
-                    b.Property<int>("Prioridade")
+                    b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
+                    b.Property<int>("StatusSLA")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubCategoriaId")
                         .HasColumnType("int");
 
                     b.Property<int?>("TecnicoAberturaChamadoId")
@@ -247,6 +247,8 @@ namespace Sistema_HelpDesk.Migrations
                     b.HasIndex("NumeroChamado")
                         .IsUnique();
 
+                    b.HasIndex("SubCategoriaId");
+
                     b.HasIndex("TecnicoAberturaChamadoId");
 
                     b.HasIndex("TecnicoFinalizacaoId");
@@ -254,6 +256,37 @@ namespace Sistema_HelpDesk.Migrations
                     b.HasIndex("UsuarioEmpresaId");
 
                     b.ToTable("Chamados");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.SubCategoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Prioridade")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SLA")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.ToTable("SubCategoria");
                 });
 
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Empresas.Entidades.Empresa", b =>
@@ -540,6 +573,12 @@ namespace Sistema_HelpDesk.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.SubCategoria", "SubCategoria")
+                        .WithMany()
+                        .HasForeignKey("SubCategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", "TecnicoAberturaChamado")
                         .WithMany()
                         .HasForeignKey("TecnicoAberturaChamadoId");
@@ -557,11 +596,24 @@ namespace Sistema_HelpDesk.Migrations
 
                     b.Navigation("Empresa");
 
+                    b.Navigation("SubCategoria");
+
                     b.Navigation("TecnicoAberturaChamado");
 
                     b.Navigation("TecnicoFinalizacao");
 
                     b.Navigation("UsuarioEmpresa");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.SubCategoria", b =>
+                {
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Categoria", "Categoria")
+                        .WithMany("SubCategorias")
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
                 });
 
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Empresas.Entidades.UsuariosEmpresa", b =>
@@ -607,6 +659,11 @@ namespace Sistema_HelpDesk.Migrations
                         .IsRequired();
 
                     b.Navigation("UserLogin");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Categoria", b =>
+                {
+                    b.Navigation("SubCategorias");
                 });
 
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Chamado", b =>
