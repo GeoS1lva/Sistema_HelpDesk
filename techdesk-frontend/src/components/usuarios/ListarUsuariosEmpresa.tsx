@@ -2,10 +2,7 @@ import { useState } from "react";
 import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import CadastroUsuarioModal from "./CadastroUsuarioModal";
-import ConfirmationModal from "../ui/ConfirmationModal";
-import apiClient from "../../api/apiClient,";
 
-const USE_MOCK_DATA_DELETE = true;
 interface UsuarioData {
   id: number;
   nome: string;
@@ -19,7 +16,7 @@ interface ListaUsuariosProps {
   usuarios: UsuarioData[];
   empresaId: number;
   onUsuarioCadastrado: (novoUsuario: any) => void;
-  onUsuarioDeletado: (id: number) => void
+  onUsuarioDeletado: (id: number) => void;
 }
 
 const headers = ["Nome", "E-mail", "Status", "Ações"];
@@ -39,51 +36,13 @@ const StatusBadge = ({ status }: { status: string }) => (
   </span>
 );
 
-interface DeleteModalState {
-  isOpen: boolean;
-  id: number | null;
-}
-
 const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({
   usuarios,
   empresaId,
   onUsuarioCadastrado,
-  onUsuarioDeletado,
 }) => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
-  const [deleteModal, setDeleteModal] = useState<DeleteModalState>({
-    isOpen: false,
-    id: null,
-  });
-  const [isDeleting, setIsDeleting] = useState(false);
-
-  const handleDeleteClick = (id: number) => {
-    setDeleteModal({ isOpen: true, id: id });
-  };
-
-  const handleConfirmDelete = async () => {
-    const idToDelete = deleteModal.id;
-    if (!idToDelete) return;
-    setIsDeleting(true);
-
-    try {
-      if (USE_MOCK_DATA_DELETE) {
-        console.log(`Modo Mock: Deletando empresa com ID: ${idToDelete}`);
-        await new Promise((res) => setTimeout(res, 1000));
-      } else {
-        await apiClient.delete(`/api/usuarios/${idToDelete}`);
-      }
-
-      onUsuarioDeletado(idToDelete)
-
-    } catch (err) {
-      console.error("Erro ao deletar usuário:", err);
-    } finally {
-      setDeleteModal({ isOpen: false, id: null });
-      setIsDeleting(false);
-    }
-  };
 
   const gridColsClass =
     "grid grid-cols-[1.9fr_1.9fr_1.9fr_0.4fr] items-center gap-6 px-5";
@@ -144,20 +103,13 @@ const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({
             </div>
             <div>
               <div className="flex space-x-3">
-                {/* <button className="text-gray-400 hover:text-blue-500">
-                  <Eye className="w-5 h-5" />
-                </button> */}
                 <button
-                  onClick={() => navigate(`/usuarios/editar/${usuario.id}`)}
+                  onClick={() =>
+                    navigate(`/usuarios/editar/${usuario.usuario}`)
+                  }
                   className="text-gray-400 hover:text-yellow-500"
                 >
                   <Pencil className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(usuario.id)}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  <Trash2 className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -170,16 +122,6 @@ const ListarUsuariosEmpresa: React.FC<ListaUsuariosProps> = ({
           onClose={() => setIsModalOpen(false)}
           empresaId={empresaId}
           onSaveSucess={onUsuarioCadastrado}
-        />
-      )}
-
-      {deleteModal.isOpen && (
-        <ConfirmationModal
-          title="Confirmar Exclusão"
-          message={`Tem certeza que deseja excluir a empresa? Esta ação não pode ser desfeita.`}
-          onClose={() => setDeleteModal({ isOpen: false, id: null })}
-          onConfirm={handleConfirmDelete}
-          isLoading={isDeleting}
         />
       )}
     </div>

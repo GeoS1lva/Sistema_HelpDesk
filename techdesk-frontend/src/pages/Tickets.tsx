@@ -1,24 +1,54 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Plus, Search, ChevronDown } from 'lucide-react';
-import apiClient from '../api/apiClient,';
+import React, { useState, useEffect, useMemo, useCallback } from "react";
+import { Plus, Search, ChevronDown, RefreshCw } from "lucide-react";
+import apiClient from "../api/apiClient";
 import {
-  ChamadoFromApi,
+  ChamadoApiResponse,
+  ChamadoDashboard,
   ChamadoView,
-  transformChamadoApiToView,
-} from '../types/chamado.types';
-import KanbanColumn from '../components/tickets/KanbanColumn';
+  transformDashboardToView,
+  transformPostToView,
+} from "../types/chamado.types";
+import KanbanColumn from "../components/tickets/KanbanColumn";
+import CadastroTicketModal from "../components/tickets/CadastroTicketModal";
+import AtendimentoTicketModal, {
+  SystemEvent,
+  ChatHistoryEvent,
+} from "../components/tickets/AtendimentoTicketModal";
 
-const USE_MOCK_DATA_GET = true;
-
+const USE_MOCK_DATA_GET = false;
 
 const mockTickets: ChamadoView[] = [
-  { id: 1, assunto: 'Problema de conexão com servidor de arquivos', status: 'Aberto', prioridade: 'Alta', clienteNome: 'Empresa A', tecnicoNome: 'Não atribuído' },
-  { id: 2, assunto: 'Aguardando liberação de acesso', status: 'Pausado', prioridade: 'Média', clienteNome: 'Empresa B', tecnicoNome: 'Alan M.' },
-  { id: 3, assunto: 'Mouse sem fio não está conectando', status: 'Em Atendimento', prioridade: 'Baixa', clienteNome: 'Empresa A', tecnicoNome: 'Alan M.' },
-  { id: 4, assunto: 'Instalação de software finalizada', status: 'Concluído', prioridade: 'Baixa', clienteNome: 'Empresa C', tecnicoNome: 'Beatriz S.' },
-  { id: 5, assunto: 'Impressora não funciona na rede', status: 'Aberto', prioridade: 'Média', clienteNome: 'Empresa B', tecnicoNome: 'Não atribuído' },
+  {
+    id: "CH2025-001",
+    assunto: "Servidor sem ligar",
+    prioridade: "Alta",
+    slaStatus: "Vencido",
+    clienteNome: "Empresa A (Mock)",
+    mesaNome: "Infra N2",
+    tecnicoNome: "Geovana Silva",
+    status: "Aberto",
+  },
+  {
+    id: "CH2025-002",
+    assunto: "Mouse quebrado",
+    prioridade: "Baixa",
+    slaStatus: "No Prazo",
+    clienteNome: "Empresa B (Mock)",
+    mesaNome: "Suporte N1",
+    tecnicoNome: "Alan M.",
+    status: "Em Atendimento",
+  },
+  {
+    id: "CH2025-003",
+    assunto: "Aguardando Peça",
+    prioridade: "Média",
+    slaStatus: "No Prazo",
+    clienteNome: "Empresa C (Mock)",
+    mesaNome: "Suporte N1",
+    tecnicoNome: "Alan M.",
+    status: "Pausado",
+  },
 ];
-
 interface GroupedTickets {
   abertos: ChamadoView[];
   emAtendimento: ChamadoView[];
@@ -26,61 +56,155 @@ interface GroupedTickets {
   concluidos: ChamadoView[];
 }
 
+interface AtendimentoModalState {
+  isOpen: boolean;
+  ticket: ChamadoView | null;
+}
+
 const Tickets: React.FC = () => {
   const [tickets, setTickets] = useState<ChamadoView[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isCadastroModalOpen, setIsCadastroModalOpen] = useState(false);
+  const [atendimentoModal, setAtendimentoModal] =
+    useState<AtendimentoModalState>({
+      isOpen: false,
+      ticket: null,
+    });
 
- 
-  useEffect(() => {
-    const fetchTickets = async () => {
-      setLoading(true);
-      setError(null);
+  const [historyCache, setHistoryCache] = useState<
+    Record<string, ChatHistoryEvent[]>
+  >({});
+  const [activeTicketHistory, setActiveTicketHistory] = useState<
+    ChatHistoryEvent[]
+  >([]);
+  const [isLoadingHistory, setIsLoadingHistory] = useState(false);
+  const [lastBackendSync, setLastBackendSync] = useState<Date | null>(null);
+
+  const fetchTickets = useCallback(async (forceSync = false) => {
+    setLoading(forceSync);
+    setError(null);
+    try {
+      let data: ChamadoView[];
       if (USE_MOCK_DATA_GET) {
-        setTickets(mockTickets);
-        setLoading(false);
-        return;
+        data = mockTickets;
+      } else {
+        const response = await apiClient.get<ChamadoDashboard[]>(
+          "/api/chamados/dashboard"
+        );
+        data = response.data.map(transformDashboardToView);
       }
-
-      try {
-        const response = await apiClient.get<ChamadoFromApi[]>('/api/chamados');
-        const transformedData = response.data.map(transformChamadoApiToView);
-        setTickets(transformedData);
-      } catch (err) {
-        setError('Falha ao carregar os chamados.');
-        console.error(err);
-      } finally {
-        setLoading(false);
+      setTickets(data);
+      if (forceSync) {
+        setLastBackendSync(new Date());
       }
-    };
-    fetchTickets();
+    } catch (err) {
+      setError("Falha ao carregar os chamados.");
+      console.error("Erro no fetchTickets:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    fetchTickets(true);
+  }, [fetchTickets]);
 
   const groupedTickets = useMemo((): GroupedTickets => {
-    return {
-      abertos: tickets.filter((t) => t.status === 'Aberto'),
-      emAtendimento: tickets.filter((t) => t.status === 'Em Atendimento'),
-      pausados: tickets.filter((t) => t.status === 'Pausado'),
-      concluidos: tickets.filter((t) => t.status === 'Concluído'),
-    };
+    return tickets.reduce(
+      (acc, ticket) => {
+        if (ticket.status === "Aberto") acc.abertos.push(ticket);
+        else if (ticket.status === "Em Atendimento")
+          acc.emAtendimento.push(ticket);
+        else if (ticket.status === "Pausado") acc.pausados.push(ticket);
+        else if (ticket.status === "Concluído") acc.concluidos.push(ticket);
+        return acc;
+      },
+      {
+        abertos: [],
+        emAtendimento: [],
+        pausados: [],
+        concluidos: [],
+      } as GroupedTickets
+    );
   }, [tickets]);
 
-  if (loading) {
-    return <div className="p-10 text-white">Carregando chamados...</div>;
+  const handleCadastroSuccess = (novoChamadoApi: ChamadoApiResponse) => {
+    const novoTicketView = transformPostToView(novoChamadoApi);
+    setTickets((prev) => [...prev, novoTicketView]);
+    setIsCadastroModalOpen(false);
+  };
+
+  const updateTicketInList = (ticketAtualizado: ChamadoApiResponse) => {
+    setTickets((prevTickets) =>
+      prevTickets.map((t) => {
+        if (t.id !== ticketAtualizado.id) {
+          return t;
+        }
+
+        return {
+          ...t,
+
+          status: ticketAtualizado.status,
+          tecnicoNome: ticketAtualizado.tecnicoNome,
+        };
+      })
+    );
+    console.log("Ticket atualizado localmente:", ticketAtualizado);
+  };
+
+  const handleTicketAction = async (
+    numeroChamado: string,
+    acao: "play" | "pause" | "atribuir" | "view"
+  ) => {
+    const ticketParaAtender = tickets.find((t) => t.id === numeroChamado);
+    if (!ticketParaAtender) {
+      console.error("Ticket não encontrado:", numeroChamado);
+      return;
+    }
+
+    setAtendimentoModal({ isOpen: true, ticket: ticketParaAtender });
+    setIsLoadingHistory(true);
+
+    if (historyCache[numeroChamado]) {
+      setActiveTicketHistory(historyCache[numeroChamado]);
+    } else {
+      try {
+        setActiveTicketHistory([]);
+        setHistoryCache((prevCache) => ({ ...prevCache, [numeroChamado]: [] }));
+      } catch (err) {
+        console.error("Erro ao buscar histórico", err);
+        setActiveTicketHistory([]);
+      }
+    }
+    setIsLoadingHistory(false);
+  };
+
+  const handleAddHistoryEvent = (ticketId: string, event: SystemEvent) => {
+    const currentHistory = historyCache[ticketId] || [];
+    const newHistory = [...currentHistory, event];
+
+    setHistoryCache((prevCache) => ({ ...prevCache, [ticketId]: newHistory }));
+    setActiveTicketHistory(newHistory);
+  };
+
+  if (loading && lastBackendSync === null) {
+    return <p className="p-10 text-white">Carregando chamados...</p>;
   }
   if (error) {
-    return <div className="p-10 text-red-500">{error}</div>;
+    return <p className="p-10 text-red-500">{error}</p>;
   }
 
   return (
     <div className="p-10 text-white h-full flex flex-col">
-      <div className="mt-auto pt-4 border-t mb-10 border-white/40"></div>
-      <div className="mt-auto pt-4 border-t mb-10 border-white/40"></div>
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">Tickets</h1>
-        <button className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-semibold transition-colors">
-          <Plus className="w-5 h-5" />
+        <button
+          onClick={() => setIsCadastroModalOpen(true)}
+          disabled={loading}
+          className="flex items-center space-x-2 bg-purple-600 hover:bg-purple-700 px-4 py-2 rounded-lg font-semibold transition-colors"
+        >
+          <Plus className="w-4 h-4" />
           <span>Cadastrar Ticket</span>
         </button>
       </div>
@@ -104,13 +228,45 @@ const Tickets: React.FC = () => {
         </div>
       </div>
 
-
-      <div className="flex-1 flex flex-col lg:flex-row lg:space-y-1 lg:space-x-4 overflow-x-auto">
-        <KanbanColumn title="Abertos" tickets={groupedTickets.abertos} />
-        <KanbanColumn title="Em Atendimento" tickets={groupedTickets.emAtendimento} />
-        <KanbanColumn title="Pausados" tickets={groupedTickets.pausados} />
-        <KanbanColumn title="Concluídos" tickets={groupedTickets.concluidos} />
+      <div className="flex-1 flex flex-col lg:flex-row space-y-4 lg:space-y-0 lg:space-x-4 overflow-x-auto pb-4">
+        <KanbanColumn
+          title="Abertos"
+          tickets={groupedTickets.abertos}
+          onUpdateTicket={handleTicketAction}
+        />
+        <KanbanColumn
+          title="Em Atendimento"
+          tickets={groupedTickets.emAtendimento}
+          onUpdateTicket={handleTicketAction}
+        />
+        <KanbanColumn
+          title="Pausados"
+          tickets={groupedTickets.pausados}
+          onUpdateTicket={handleTicketAction}
+        />
+        <KanbanColumn
+          title="Concluídos"
+          tickets={groupedTickets.concluidos}
+          onUpdateTicket={handleTicketAction}
+        />
       </div>
+
+      <CadastroTicketModal
+        isOpen={isCadastroModalOpen}
+        onClose={() => setIsCadastroModalOpen(false)}
+        onCadastroSuccess={handleCadastroSuccess}
+      />
+
+      {atendimentoModal.isOpen && atendimentoModal.ticket && (
+        <AtendimentoTicketModal
+          ticket={atendimentoModal.ticket}
+          history={activeTicketHistory}
+          isLoadingHistory={isLoadingHistory}
+          onAddHistoryEvent={handleAddHistoryEvent}
+          onClose={() => setAtendimentoModal({ isOpen: false, ticket: null })}
+          onUpdateTicketInList={updateTicketInList}
+        />
+      )}
     </div>
   );
 };

@@ -1,7 +1,15 @@
 import { Link, useLocation } from "react-router-dom";
-import { Building, Ticket, UserCircle, LogOut } from "lucide-react";
+import {
+  Building,
+  Ticket,
+  UserCircle,
+  LogOut,
+  Wrench,
+  Server,
+  LayoutGrid,
+} from "lucide-react";
 import { useAuth } from "../../contexts/AuthContext";
-import logo from "../../assets/logo.png";
+import logo2 from "../../assets/logo2.png";
 
 const SidebarLink = ({ to, icon: Icon, children, isExpanded }) => {
   const location = useLocation();
@@ -48,7 +56,7 @@ const Sidebar = () => {
     >
       <div className={`flex items-center h-20 mb-6 relative justify-center`}>
         <img
-          src={logo}
+          src={logo2}
           alt="TechDesk Logo"
           className={`w-24 transition-opacity duration-300 ${
             isSidebarExpanded ? "opacity-100" : "opacity-0"
@@ -67,6 +75,26 @@ const Sidebar = () => {
           isExpanded={isSidebarExpanded}
         >
           Empresas
+        </SidebarLink>
+
+        <SidebarLink
+          to="/tecnicos"
+          icon={Wrench}
+          isExpanded={isSidebarExpanded}
+        >
+          Técnicos
+        </SidebarLink>
+
+        <SidebarLink to="/mesas" icon={Server} isExpanded={isSidebarExpanded}>
+          Mesas
+        </SidebarLink>
+
+        <SidebarLink
+          to="/categorias"
+          icon={LayoutGrid}
+          isExpanded={isSidebarExpanded}
+        >
+          Categorias
         </SidebarLink>
       </nav>
 

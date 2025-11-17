@@ -1,22 +1,25 @@
 import React, { useState, useEffect } from "react";
-
 import { useNavigate } from "react-router-dom";
-import apiClient from "../../api/apiClient,";
+import apiClient from "../../api/apiClient";
 
 import Input from "../ui/Input";
 import Button from "../ui/Button";
 
-const USE_MOCK_DATA_PUT = true;
+const USE_MOCK_DATA_PUT = false;
+const USE_MOCK_DATA_PATCH = false;
+
+interface EmpresaViewData {
+  id: number;
+  nome: string;
+  cnpj: string;
+  email: string;
+  status: string;
+  dataCriacao: string;
+}
 
 interface FormularioProps {
-  initialData: {
-    id: number;
-    nome: string;
-    cnpj: string;
-    email: string;
-    status: string;
-    dataCadastro: string;
-  };
+  initialData: EmpresaViewData;
+  onDataChange: (newData: EmpresaViewData) => void;
 }
 
 const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
@@ -33,10 +36,12 @@ const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
 
 const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
   initialData,
+  onDataChange,
 }) => {
   const [formData, setFormData] = useState(initialData);
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isStatusLoading, setIsStatusLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
@@ -48,20 +53,63 @@ const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
   useEffect(() => {
     const hasChanged =
       formData.nome !== initialData.nome ||
-      formData.email !== initialData.email ||
-      formData.status !== initialData.status;
+      formData.email !== initialData.email;
     setIsDirty(hasChanged);
   }, [formData, initialData]);
+
+  const handleStatusChange = async (novoStatus: string) => {
+    setIsStatusLoading(true);
+    setError(null);
+
+    let novoEstadoCompleto: EmpresaViewData | undefined;
+
+    setFormData((prev) => {
+      novoEstadoCompleto = { ...prev, status: novoStatus };
+      return novoEstadoCompleto;
+    });
+
+    const endpoint = novoStatus === "Ativo" ? "ativar" : "inativar";
+
+    try {
+      if (USE_MOCK_DATA_PATCH) {
+        console.log(`Mock: PATCH /api/empresas/${initialData.id}/${endpoint}`);
+        await new Promise((res) => setTimeout(res, 1000));
+      } else {
+        await apiClient.patch(`/api/empresas/${initialData.id}/${endpoint}`);
+      }
+
+      if (novoEstadoCompleto) {
+        onDataChange(novoEstadoCompleto);
+      } else {
+        console.warn("Atualização de estado do pai usou fallback.");
+        onDataChange((prev) => ({ ...prev, status: novoStatus }));
+      }
+    } catch (err) {
+      console.error(`Erro ao ${endpoint} empresa:`, err);
+      setError("Falha ao alterar status. Tente novamente.");
+      setFormData(initialData);
+    } finally {
+      setIsStatusLoading(false);
+    }
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    if (name === "status") {
+      handleStatusChange(value);
+    } else {
+      setFormData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleCancel = () => {
-    setFormData(initialData);
+    setFormData((prev) => ({
+      ...prev,
+      nome: initialData.nome,
+      email: initialData.email,
+    }));
     setError(null);
   };
 
@@ -70,33 +118,57 @@ const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
     setIsLoading(true);
     setError(null);
 
-    const payload = {
-      Nome: formData.nome,
-      Email: formData.email,
-      Status: formData.status === "Ativo" ? 1 : 0,
-    };
+    const updatePromises: Promise<any>[] = [];
+
+    if (formData.nome !== initialData.nome) {
+      updatePromises.push(
+        apiClient.patch(`/api/empresas/${formData.id}/nome`, {
+          nome: formData.nome,
+        })
+      );
+    }
+
+    if (formData.email !== initialData.email) {
+      updatePromises.push(
+        apiClient.patch(`/api/empresas/${formData.id}/email`, {
+          email: formData.email,
+        })
+      );
+    }
+
+    if (updatePromises.length === 0) {
+      setIsLoading(false);
+      return;
+    }
 
     try {
       if (USE_MOCK_DATA_PUT) {
-        console.log("Modo Mock: Simulando PUT", payload);
+        console.log(
+          `Modo Mock: Simulando ${updatePromises.length} chamadas PUT...`
+        );
         await new Promise((res) => setTimeout(res, 1000));
       } else {
-        await apiClient.put(`/api/empresas/${formData.id}`, payload);
+        await Promise.all(updatePromises);
       }
-
-      setIsDirty(false);
+      onDataChange({
+        ...initialData,
+        nome: formData.nome,
+        email: formData.email,
+      });
       setIsLoading(false);
-      navigate("/empresas");
+      navigate("/empresas", { state: { refresh: true } });
     } catch (err) {
       console.error("Erro ao salvar alterações:", err);
-      setError("Falha ao salvar. Tente novamente.");
+      setError("Falha ao salvar uma ou mais alterações. Tente novamente.");
       setIsLoading(false);
     }
   };
 
   return (
     <div className="bg-[#1E1E1E] p-6 rounded-lg shadow-lg border border-gray-800">
-      <h2 className="text-2xl font-bold mb-6">Empresa: {initialData.nome}</h2>
+      <h2 className="text-2xl font-bold mb-6 text-white">
+        Empresa: {initialData.nome}
+      </h2>
 
       <form onSubmit={handleSave} className="space-y-4">
         <LabeledInput
@@ -105,7 +177,8 @@ const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
           type="text"
           value={formData.nome}
           onChange={handleChange}
-          className="h-[42px] bg-[#606060] text-sm border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+          disabled={isLoading}
+          className="h-[42px] bg-[#606060] text-base border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
         />
 
         <div className="flex flex-col md:flex-row gap-4">
@@ -115,15 +188,16 @@ const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
             type="text"
             value={formData.cnpj}
             disabled
-            className="h-[42px] bg-[#3B3B3B] border border-gray-600 cursor-not-allowed text-sm"
+            className="h-[42px] bg-[#3B3B3B] border border-gray-600 cursor-not-allowed text-base"
           />
           <LabeledInput
             label="Data de Cadastro"
             name="dataCadastro"
             type="date"
-            value={formData.dataCadastro.split("T")[0]}
+            value={formData.dataCriacao}
             disabled
-            className="h-[42px] bg-[#3B3B3B] text-sm border border-gray-600 cursor-not-allowed"
+            onChange={handleChange}
+            className="h-[42px] bg-[#3B3B3B] text-base border border-gray-600 cursor-not-allowed"
           />
         </div>
 
@@ -134,17 +208,25 @@ const FormularioEditarEmpresa: React.FC<FormularioProps> = ({
             type="email"
             value={formData.email}
             onChange={handleChange}
-            className="h-[42px] bg-[#606060] text-sm border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+            disabled={isLoading}
+            className="h-[42px] bg-[#606060] text-base border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
           />
           <div className="flex-1">
-            <label className="block text-sm font-medium text-gray-300 mb-1">
+            <label className="block text-base font-medium text-gray-300 mb-1">
               Status
             </label>
             <select
               name="status"
               value={formData.status}
               onChange={handleChange}
-              className="h-[42px] bg-[#606060] border border-[#CAC9CF] text-white rounded-lg p-2 focus:outline-none focus:border-purple-500 w-full"
+              disabled={isStatusLoading || isLoading}
+              className={`h-[42px] border border-[#CAC9CF] text-white rounded-lg p-2 focus:outline-none w-full
+                ${
+                  isStatusLoading
+                    ? "bg-gray-700 animate-pulse cursor-not-allowed"
+                    : "bg-[#606060]"
+                }
+              `}
             >
               <option value="Ativo">Ativo</option>
               <option value="Inativo">Inativo</option>

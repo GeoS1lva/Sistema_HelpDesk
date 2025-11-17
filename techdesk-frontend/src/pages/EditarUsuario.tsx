@@ -1,21 +1,23 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import apiClient from "../api/apiClient,";
-import FormularioEditarUsuario from "../components/usuarios//FormularioEditarUsuario";
+import apiClient from "../api/apiClient";
+import FormularioEditarUsuario, {
+  FormularioPayload,
+} from "../components/usuarios/FormularioEditarUsuario";
 import { ChevronLeft } from "lucide-react";
 
-const USE_MOCK_DATA_GET = true;
-const USE_MOCK_DATA_PUT = true;
+const USE_MOCK_DATA_GET = false;
 
 interface UsuarioApiData {
-  Id: number;
-  Nome: string;
-  UserName: string;
-  Email: string;
-  Status: number;
+  id: number;
+  nome: string;
+  userName: string;
+  email: string;
+  status: number;
+  dataCriacao: string;
 }
 
-interface UsuarioViewData {
+export interface UsuarioViewData {
   id: number;
   nome: string;
   userName: string;
@@ -24,23 +26,24 @@ interface UsuarioViewData {
 }
 
 const mockUsuarioApi: UsuarioApiData = {
-  Id: 7,
-  Nome: "Alan M. (Mockado)",
-  UserName: "alan.m",
-  Email: "alan@empresa.com",
-  Status: 1,
+  id: 7,
+  nome: "Alan M. (Mockado)",
+  userName: "alan.m",
+  email: "alan@empresa.com",
+  status: 1,
+  dataCriacao: "2025-01-01T00:00:00Z",
 };
 
 const transformApiToView = (apiData: UsuarioApiData): UsuarioViewData => ({
-  id: apiData.Id,
-  nome: apiData.Nome,
-  userName: apiData.UserName,
-  email: apiData.Email,
-  status: apiData.Status === 1 ? "Ativo" : "Inativo",
+  id: apiData.id,
+  nome: apiData.nome,
+  userName: apiData.userName,
+  email: apiData.email,
+  status: apiData.status ? "Ativo" : "Inativo",
 });
 
 const EditarUsuario: React.FC = () => {
-  const { userId } = useParams<{ userId: string }>();
+  const { userName } = useParams<{ userName: string }>();
   const navigate = useNavigate();
 
   const [usuario, setUsuario] = useState<UsuarioViewData | null>(null);
@@ -58,7 +61,7 @@ const EditarUsuario: React.FC = () => {
           dadosApi = mockUsuarioApi;
         } else {
           const response = await apiClient.get<UsuarioApiData>(
-            `/api/Usuarios/${userId}`
+            `/api/usuariosempresas/${userName}`
           );
           dadosApi = response.data;
         }
@@ -72,27 +75,45 @@ const EditarUsuario: React.FC = () => {
     };
 
     fetchUsuario();
-  }, [userId]);
+  }, [userName]);
 
-  const handleSave = async (formData: UsuarioViewData) => {
-    const payload = {
-      Nome: formData.nome,
-      UserName: formData.userName,
-      Email: formData.email,
-      Status: formData.status === "Ativo" ? 1 : 0,
-    };
+  const handleSave = async (formData: FormularioPayload) => {
+    if (!usuario) {
+      return "Erro: Dados originais do usuário não carregados.";
+    }
+
+    const antigoUserName = usuario.userName;
 
     try {
-      if (USE_MOCK_DATA_PUT) {
-        console.log("Modo Mock: Simulando PUT", payload);
-        await new Promise((res) => setTimeout(res, 1000));
-      } else {
-        await apiClient.put(`/api/Usuarios/${userId}`, payload);
+      const payload: any = {
+        antigoUserName: antigoUserName,
+      };
+
+      if (formData.nome !== usuario.nome) {
+        payload.nome = formData.nome;
       }
+      if (formData.novoUserName !== usuario.userName) {
+        payload.novoUserName = formData.novoUserName;
+      }
+      if (formData.email !== usuario.email) {
+        payload.email = formData.email;
+      }
+      if (formData.password && formData.password.trim() !== "") {
+        payload.password = formData.password;
+      }
+
+      if (Object.keys(payload).length === 1) {
+        console.log("Nenhuma alteração detectada. Nada a salvar.");
+        navigate(-1);
+        return;
+      }
+
+      await apiClient.patch(`/api/usuariosempresas/${antigoUserName}`, payload);
+
       navigate(-1);
     } catch (err) {
       console.error("Erro ao salvar usuário:", err);
-      return "Falha ao salvar. Tente novamente.";
+      return "Falha ao salvar. Verifique os dados e tente novamente.";
     }
   };
 
@@ -112,7 +133,7 @@ const EditarUsuario: React.FC = () => {
     <div className="p-10 text-white">
       <div className="pt-1 border-t mb-1 border-white/40"></div>
       <button
-        onClick={() => navigate(`/empresas/editar/`)}
+        onClick={() => navigate(-1, { state: { refresh: true } })}
         className="flex items-center space-x-2 bg-purple-500 hover:bg-purple-700 px-2 py-2 rounded-lg font-semibold transition-colors"
       >
         <ChevronLeft className="w-5 h-5" />
@@ -123,7 +144,12 @@ const EditarUsuario: React.FC = () => {
         <h1 className="text-3xl font-bold text-white mb-6">
           Editar Usuário: {usuario.nome}
         </h1>
-        <FormularioEditarUsuario initialData={usuario} onSave={handleSave} />
+
+        <FormularioEditarUsuario
+          initialData={usuario}
+          onSave={handleSave}
+          onDataChange={setUsuario}
+        />
       </div>
     </div>
   );

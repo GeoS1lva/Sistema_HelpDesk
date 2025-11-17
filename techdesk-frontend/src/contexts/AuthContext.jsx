@@ -1,42 +1,45 @@
-import React, { createContext, useContext, useState, useEffect } from "react";
-import apiClient from "../api/apiClient,";
+import React, { createContext, useContext, useState } from "react";
+import apiClient from "../api/apiClient";
 
-const AuthContext = createContext(null);
+const defaultContextValue = {
+  user: null,
+  loading: false,
+  isSidebarExpanded: true,
+  login: () => {},
+  logout: () => {},
+  expandSidebar: () => {},
+  collapseSidebar: () => {},
+};
+
+const AuthContext = createContext(defaultContextValue);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
-  const checkAuthStatus = async () => {
+  const [user, setUser] = useState(() => {
     try {
-      const res = await apiClient.get("/api/Autenticacao/Profile");
-
-      if (res.data && res.data.UserName) {
-        setUser({
-          name: res.data.UserName,
-          role: res.data.Role,
-          email: res.data.Email,
-        });
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      setUser(null);
-      console.log("Nenhum usuário autenticado.");
-    } finally {
-      setLoading(false);
+      const storedUser = localStorage.getItem("techdeskUser");
+      return storedUser ? JSON.parse(storedUser) : null;
+    } catch (e) {
+      return null;
     }
-  };
+  });
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
+  const [loading, setLoading] = useState(false);
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
+
+  const login = (userData) => {
+    setUser(userData);
+    localStorage.setItem("techdeskUser", JSON.stringify(userData));
+  };
 
   const logout = async () => {
     setLoading(true);
-    // await apiClient.post("/api/Autenticacao/Logout");
+    try {
+      await apiClient.delete("/api/autenticacoes");
+    } catch (error) {
+      console.error("Erro no logout:", error);
+    }
     setUser(null);
+    localStorage.removeItem("techdeskUser");
     setLoading(false);
     window.location.href = "/login";
   };
@@ -44,22 +47,23 @@ export const AuthProvider = ({ children }) => {
   const expandSidebar = () => setIsSidebarExpanded(true);
   const collapseSidebar = () => setIsSidebarExpanded(false);
 
-  return (
-    <AuthContext.Provider
-      value={{
-        user,
-        loading,
-        logout,
-        isSidebarExpanded,
-        expandSidebar,
-        collapseSidebar,
-      }}
-    >
-      {!loading && children}
-    </AuthContext.Provider>
-  );
+  const value = {
+    user,
+    loading,
+    login,
+    logout,
+    isSidebarExpanded,
+    expandSidebar,
+    collapseSidebar,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
 export const useAuth = () => {
-  return useContext(AuthContext);
+  const context = useContext(AuthContext);
+  if (context === undefined || context === null) {
+    throw new Error("useAuth deve ser usado dentro de um AuthProvider");
+  }
+  return context;
 };

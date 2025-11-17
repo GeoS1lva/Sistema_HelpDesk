@@ -2,7 +2,7 @@ import { Children } from "react";
 import { Navigate } from "react-router-dom";
 
 const ProtectedRoute = ({ children }) => {
-  const token = localStorage.getItem("authToken");
+  const token = localStorage.getItem("techdeskUser");
 
   if (!token) {
     return <Navigate to="/login" replace />;

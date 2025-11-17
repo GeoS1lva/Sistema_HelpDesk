@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Input from "../ui/Input";
+import { TecnicoViewData } from "../../pages/EditarTecnico"; 
 import Button from "../ui/Button";
-import apiClient from "../../api/apiClient";
+import Input from "../ui/Input";
 
-import { UsuarioViewData } from "../../pages/EditarUsuario";
 
 export interface FormularioPayload {
   nome: string;
@@ -14,9 +12,8 @@ export interface FormularioPayload {
 }
 
 interface FormularioProps {
-  initialData: UsuarioViewData;
+  initialData: TecnicoViewData;
   onSave: (formData: FormularioPayload) => Promise<string | void>;
-  onDataChange: (newData: UsuarioViewData) => void;
 }
 
 const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
@@ -31,22 +28,19 @@ const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
   </div>
 );
 
-const FormularioEditarUsuario: React.FC<FormularioProps> = ({
+const FormularioEditarTecnico: React.FC<FormularioProps> = ({
   initialData,
   onSave,
-  onDataChange,
 }) => {
   const [formData, setFormData] = useState({
     nome: initialData.nome,
     novoUserName: initialData.userName,
     email: initialData.email,
     password: "",
-    status: initialData.status,
   });
 
   const [isDirty, setIsDirty] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isStatusLoading, setIsStatusLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -55,7 +49,6 @@ const FormularioEditarUsuario: React.FC<FormularioProps> = ({
       novoUserName: initialData.userName,
       email: initialData.email,
       password: "",
-      status: initialData.status,
     });
     setIsDirty(false);
   }, [initialData]);
@@ -69,81 +62,45 @@ const FormularioEditarUsuario: React.FC<FormularioProps> = ({
     setIsDirty(hasChanged);
   }, [formData, initialData]);
 
-  const handleStatusChange = async (novoStatus: string) => {
-    setIsStatusLoading(true);
-    setError(null);
-
-    let novoEstadoCompleto:
-      | (UsuarioViewData & { password?: string })
-      | undefined;
-
-    const endpoint = novoStatus === "Ativo" ? "ativar" : "inativar";
-
-    setFormData((prev) => ({ ...prev, status: novoStatus }));
-
-    try {
-      await apiClient.patch(
-        `/api/usuariosempresas/${initialData.id}/${endpoint}`,
-        {},
-        {
-          headers: {},
-        }
-      );
-
-      onDataChange({ ...initialData, ...formData, status: novoStatus });
-    } catch (err) {
-      console.error(`Erro ao ${endpoint} usuário:`, err);
-      setError("Falha ao alterar status. Tente novamente.");
-      setFormData((prev) => ({ ...prev, status: initialData.status }));
-    } finally {
-      setIsStatusLoading(false);
-    }
-  };
-
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
     const { name, value } = e.target;
-
-    if (name === "status") {
-      handleStatusChange(value);
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleCancel = () => {
-    setFormData((prev) => ({
-      ...prev,
+    setFormData({
       nome: initialData.nome,
       novoUserName: initialData.userName,
       email: initialData.email,
       password: "",
-    }));
+    });
     setError(null);
   };
 
+  
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); 
     setIsLoading(true);
     setError(null);
 
-    const payload: FormularioPayload = {
-      nome: formData.nome,
-      novoUserName: formData.novoUserName,
-      email: formData.email,
-      password: formData.password,
-    };
-
-    const saveError = await onSave(payload);
-
-    if (saveError) {
-      setError(saveError);
+    try {
+      const saveError = await onSave(formData); 
+      
+      if (saveError) {
+        setError(saveError);
+      }
+    } catch (err) {
+      console.error("Erro no 'handleSubmit' do formulário:", err);
+      setError("Ocorreu um erro inesperado ao salvar.");
+    } finally {
+      setIsLoading(false);
     }
-    setIsLoading(false);
   };
 
   return (
+    
     <form onSubmit={handleSubmit} className="space-y-4 text-white">
       <LabeledInput
         label="Nome Completo"
@@ -151,7 +108,6 @@ const FormularioEditarUsuario: React.FC<FormularioProps> = ({
         type="text"
         value={formData.nome}
         onChange={handleChange}
-        disabled={isLoading || isStatusLoading}
         className="h-[42px] bg-[#606060] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-sm"
       />
 
@@ -162,44 +118,37 @@ const FormularioEditarUsuario: React.FC<FormularioProps> = ({
           type="text"
           value={formData.novoUserName}
           onChange={handleChange}
-          disabled={isLoading || isStatusLoading}
-          className="h-[42px] bg-[#606060] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-base"
+          className="h-[42px] bg-[#606060] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-sm"
         />
-        <LabeledInput
-          label="Nova Senha (Deixe em branco para não alterar)"
-          name="password"
-          type="password"
-          value={formData.password || ""}
-          onChange={handleChange}
-          disabled={isLoading || isStatusLoading}
-          className="h-[42px] bg-[#606060] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-base"
-        />
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-4 ">
         <LabeledInput
           label="E-mail"
           name="email"
           type="email"
           value={formData.email}
           onChange={handleChange}
-          disabled={isLoading || isStatusLoading}
-          className="h-[42px] bg-[#606060] text-base border border-[#CAC9CF] focus:outline-none focus:border-purple-500"
+          className="h-[42px] bg-[#606060] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-sm"
         />
+      </div>
+
+      <div className="flex flex-col md:flex-row gap-4">
+        <LabeledInput
+          label="Nova Senha (Deixe em branco para não alterar)"
+          name="password"
+          type="password"
+          value={formData.password}
+          onChange={handleChange}
+          className="h-[42px] bg-[#606060] border border-[#CAC9CF] focus:outline-none focus:border-purple-500 text-sm"
+        />
+
         <div className="flex-1">
           <label className="block text-sm font-medium text-gray-300 mb-1">
-            Status
+            Perfil (Não editável)
           </label>
-          <select
-            name="status"
-            value={formData.status}
-            onChange={handleChange}
-            disabled={isStatusLoading || isLoading}
-            className="h-[42px] bg-[#606060] border border-[#CAC9CF] text-white rounded-lg p-2 focus:outline-none focus:border-purple-500 w-full text-base"
-          >
-            <option value="Ativo">Ativo</option>
-            <option value="Inativo">Inativo</option>
-          </select>
+          <Input
+            type="text"
+            value={initialData.tipoPerfil}
+            disabled
+            className="h-[42px] bg-[#3B3B3B] border border-gray-600 cursor-not-allowed text-sm capitalize" label={""}          />
         </div>
       </div>
 
@@ -212,14 +161,14 @@ const FormularioEditarUsuario: React.FC<FormularioProps> = ({
             variant="secondary"
             onClick={handleCancel}
             className="bg-transparent text-red-500 hover:bg-red-500/10 px-4 py-2"
-            disabled={isLoading || isStatusLoading}
+            disabled={isLoading}
           >
             Cancelar
           </Button>
           <Button
             type="submit"
             className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2"
-            disabled={isLoading || isStatusLoading}
+            disabled={isLoading}
           >
             {isLoading ? "Salvando..." : "Salvar Alterações"}
           </Button>
@@ -229,4 +178,4 @@ const FormularioEditarUsuario: React.FC<FormularioProps> = ({
   );
 };
 
-export default FormularioEditarUsuario;
+export default FormularioEditarTecnico;

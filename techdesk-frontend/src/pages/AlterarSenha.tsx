@@ -1,14 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "../components/ui/Button";
 import Input from "../components/ui/Input";
+import apiClient from "../api/apiClient";
 
 const AlterarSenhaPage = () => {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handlePasswordReset = async (e) => {
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+
+  const [token, setToken] = useState<string | null>(null);
+  const [userName, setUserName] = useState<string | null>(null);
+
+  useEffect(() => {
+    const tokenFromUrl = searchParams.get("token");
+    const userFromUrl = searchParams.get("userName");
+
+    if (!tokenFromUrl || !userFromUrl) {
+      setError("Link de redefinição inválido ou expirado.");
+    } else {
+      setToken(tokenFromUrl);
+      setUserName(userFromUrl);
+    }
+  }, [searchParams]);
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setMessage("");
@@ -22,8 +43,37 @@ const AlterarSenhaPage = () => {
       return;
     }
 
-    console.log("Nova senha:", newPassword);
-    setMessage("Senha alterada com sucesso!");
+    if (!token || !userName) {
+      setError("Não foi possível verificar seu link. Tente novamente.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const payload = {
+      userName: userName,
+      token: token,
+      password: newPassword,
+    };
+
+    try {
+      await apiClient.post("/api/redefinicoes-senha/confirmar", payload);
+
+      setMessage(
+        "Senha alterada com sucesso! Você será redirecionado para o login."
+      );
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
+    } catch (err: any) {
+      const errorMsg =
+        err.response?.data?.message ||
+        "Erro ao redefinir a senha. Tente novamente.";
+      setError(errorMsg);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -49,6 +99,7 @@ const AlterarSenhaPage = () => {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 className="bg-[#2F2F2F] border border-gray-600 text-white rounded"
+                disabled={isLoading || !!message}
               />
               <Input
                 type="password"
@@ -57,6 +108,7 @@ const AlterarSenhaPage = () => {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="bg-[#2F2F2F] border border-gray-600 text-white rounded"
+                disabled={isLoading || !!message}
               />
             </div>
 
@@ -74,6 +126,8 @@ const AlterarSenhaPage = () => {
                 type="submit"
                 variant="primary"
                 className="w-[190px] text-white font-bold py-3 hover:opacity-90 rounded-3xl"
+                isLoading={isLoading}
+                disabled={isLoading || !!message}
               >
                 Salvar
               </Button>
@@ -82,7 +136,8 @@ const AlterarSenhaPage = () => {
                 type="button"
                 variant="secondary"
                 className="w-[190px] items-center flex bg-gradient-to-t from-[#383838] to-[#848383] text-white font-bold py-3 rounded-3xl"
-                onClick={() => console.log("Operação cancelada")}
+                onClick={() => navigate("/login")}
+                disabled={isLoading}
               >
                 Cancelar
               </Button>

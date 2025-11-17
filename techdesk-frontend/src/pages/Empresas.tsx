@@ -1,20 +1,20 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { Plus, Search, Eye, Pencil, Trash2, ChevronDown } from "lucide-react";
-import apiClient from "../api/apiClient,";
+import apiClient from "../api/apiClient";
 import CadastroEmpresaModal from "../components/empresas/CadastroEmpresaModal";
 import ConfirmationModal from "../components/ui/ConfirmationModal";
 
-const USE_MOCK_DATA_GET = true;
-const USE_MOCK_DATA_DELETE = true;
+const USE_MOCK_DATA_GET = false;
 
 interface EmpresaFromApi {
-  Id: number;
-  Nome: string;
-  Cnpj: string;
-  Email: string;
-  Status: number;
-  DataCriacao: string;
+  id: number;
+  nome: string;
+  cnpj: string;
+  email: string;
+  status: number;
+  dataCriacao: string;
 }
 interface EmpresaView {
   id: number;
@@ -45,12 +45,12 @@ const mockEmpresas: EmpresaView[] = [
 ];
 
 const transformApiToView = (apiData: EmpresaFromApi): EmpresaView => ({
-  id: apiData.Id,
-  nome: apiData.Nome,
-  cnpj: apiData.Cnpj,
-  email: apiData.Email,
-  status: apiData.Status === 1 ? "Ativo" : "Inativo",
-  dataCriacao: apiData.DataCriacao,
+  id: apiData.id,
+  nome: apiData.nome,
+  cnpj: apiData.cnpj,
+  email: apiData.email,
+  status: apiData.status ? "Ativo" : "Inativo",
+  dataCriacao: apiData.dataCriacao,
 });
 
 const headers = ["Nome", "CNPJ", "E-mail", "Status", "Ações"];
@@ -85,67 +85,44 @@ const Empresas = () => {
     isOpen: false,
     id: null,
   });
-  const [isDeleting, setIsDeleting] = useState(false);
+
+  const fetchEmpreas = async () => {
+    setLoading(true);
+    setError(null);
+
+    if (USE_MOCK_DATA_GET) {
+      setEmpresas(mockEmpresas);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const response = await apiClient.get<EmpresaFromApi[]>("/api/empresas");
+      const transformedData = response.data.map(transformApiToView);
+      setEmpresas(transformedData);
+    } catch (err) {
+      setError("Falha ao carregar os dados das empresas.");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const fetchEmpreas = async () => {
-      setLoading(true);
-      setError(null);
-
-      if (USE_MOCK_DATA_GET) {
-        setEmpresas(mockEmpresas);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const response = await apiClient.get<EmpresaFromApi[]>("/api/empresas");
-        const transformedData = response.data.map(transformApiToView);
-        setEmpresas(transformedData);
-      } catch (err) {
-        setError("Falha ao carregar os dados das empresas.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    };
-
     fetchEmpreas();
   }, []);
+
+  const location = useLocation();
+  useEffect(() => {
+    if (location.state && (location.state as any).refresh) {
+      fetchEmpreas();
+    }
+  }, [location.state]);
 
   const handleCadastroSuccess = (novaEmpresaApi: EmpresaFromApi) => {
     const novaEmpresaView = transformApiToView(novaEmpresaApi);
     setEmpresas((empresasAtuais) => [novaEmpresaView, ...empresasAtuais]);
   };
-
-  const handleDeleteClick = (id: number) => {
-    setDeleteModal({ isOpen: true, id: id });
-  };
-
-  const handleConfirmDelete = async () => {
-    const idToDelete = deleteModal.id;
-    if (!idToDelete) return;
-    setIsDeleting(true);
-
-    try {
-      if (USE_MOCK_DATA_DELETE) {
-        console.log(`Modo Mock: Deletando empresa com ID: ${idToDelete}`);
-        await new Promise((res) => setTimeout(res, 1000));
-      } else {
-        await apiClient.delete(`/api/empresas/${idToDelete}`);
-      }
-
-      setEmpresas((empresasAtuais) =>
-        empresasAtuais.filter((empresa) => empresa.id !== idToDelete)
-      );
-    } catch (err) {
-      console.error("Erro ao deletar empresa:", err);
-    } finally {
-      setDeleteModal({ isOpen: false, id: null });
-      setIsDeleting(false);
-    }
-  };
-
   const gridColsClass =
     "grid grid-cols-[2.5fr_1.5fr_2fr_1.5fr_0.4fr] items-center gap-6 px-6";
 
@@ -169,7 +146,6 @@ const Empresas = () => {
           <Search className="w-5 h-5 text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
       </div>
-      {/* Estas linhas parecem ser divisores extras, mantive-os como no seu código */}
       <div className="mt-auto pt-4 border-t mb-10 border-white/40"></div>
       <div className="mt-auto pt-4 border-t mb-10 border-white/40"></div>
 
@@ -210,7 +186,7 @@ const Empresas = () => {
               {empresa.nome}
             </div>
             <div className="regular">{empresa.cnpj}</div>
-            <div className="truncate" title={empresa.email}>
+            <div className="truncate " title={empresa.email}>
               {empresa.email}
             </div>
             <div>
@@ -218,20 +194,11 @@ const Empresas = () => {
             </div>
             <div>
               <div className="flex space-x-3">
-                {/* <button className="text-gray-400 hover:text-blue-500">
-                      <Eye className="w-5 h-5" />
-                    </button> */}
                 <button
                   onClick={() => navigate(`/empresas/editar/${empresa.id}`)}
                   className="text-gray-400 hover:text-yellow-500"
                 >
                   <Pencil className="w-5 h-5" />
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(empresa.id)}
-                  className="text-gray-400 hover:text-red-500"
-                >
-                  <Trash2 className="w-5 h-5" />
                 </button>
               </div>
             </div>
@@ -242,17 +209,7 @@ const Empresas = () => {
       {isModalOpen && (
         <CadastroEmpresaModal
           onClose={() => setIsModalOpen(false)}
-          onSaveSucess={handleCadastroSuccess}
-        />
-      )}
-
-      {deleteModal.isOpen && (
-        <ConfirmationModal
-          title="Confirmar Exclusão"
-          message={`Tem certeza que deseja excluir a empresa? Esta ação não pode ser desfeita.`}
-          onClose={() => setDeleteModal({ isOpen: false, id: null })}
-          onConfirm={handleConfirmDelete}
-          isLoading={isDeleting}
+          onSaveSuccess={handleCadastroSuccess}
         />
       )}
     </div>

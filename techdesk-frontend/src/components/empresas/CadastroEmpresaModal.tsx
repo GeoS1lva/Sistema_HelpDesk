@@ -2,22 +2,23 @@ import React, { useState } from "react";
 import Modal from "../ui/Modal";
 import Input from "../ui/Input";
 import Button from "../ui/Button";
-import apiClient from "../../api/apiClient,";
+import apiClient from "../../api/apiClient";
+import { AxiosError } from "axios";
 
-const USE_MOCK_DATA_POST = true;
+const USE_MOCK_DATA_POST = false;
 
 interface EmpresaFromApi {
-  Id: number;
-  Nome: string;
-  Cnpj: string;
-  Email: string;
-  Status: number;
-  DataCriacao: string;
+  id: number;
+  nome: string;
+  cnpj: string;
+  email: string;
+  status: number;
+  dataCriacao: string;
 }
 
 interface CadastroEmpresaModalProps {
   onClose: () => void;
-  onSaveSucess: (novaEmpresa: EmpresaFromApi) => void;
+  onSaveSuccess: (novaEmpresa: EmpresaFromApi) => void;
 }
 
 const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
@@ -34,7 +35,7 @@ const LabeledInput: React.FC<{ label: string; [key: string]: any }> = ({
 
 const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
   onClose,
-  onSaveSucess,
+  onSaveSuccess,
 }) => {
   const [nome, setNome] = useState("");
   const [cnpj, setCnpj] = useState("");
@@ -53,11 +54,11 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
     setError(null);
 
     const payload = {
-      Nome: nome,
-      Cnpj: cnpj,
-      Email: email,
-      DataCriacao: dataCadastro,
-      Status: status === "Ativo" ? 1 : 0,
+      nome: nome,
+      cnpj: cnpj,
+      email: email,
+      dataCriacao: new Date(dataCadastro).toISOString(),
+      status: status === "Ativo" ? 2 : 1,
     };
 
     try {
@@ -67,8 +68,10 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
         console.log("Modo Mock: Simulando POST", payload);
         await new Promise((res) => setTimeout(res, 1000));
         novaEmpresa = {
-          Id: Math.floor(Math.random() * 1000),
+          id: Math.floor(Math.random() * 1000),
           ...payload,
+          status: payload.status,
+          dataCriacao: payload.dataCriacao,
         };
       } else {
         const res = await apiClient.post<EmpresaFromApi>(
@@ -77,12 +80,30 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
         );
         novaEmpresa = res.data;
       }
-      onSaveSucess(novaEmpresa);
+      onSaveSuccess(novaEmpresa);
       onClose();
       console.log("Dados a serem enviados:", payload);
     } catch (err) {
-      console.log("Erro ao cadastrar empresa:", err);
-      setError("Falha ao cadastrar. Tente novamente.");
+      const error = err as AxiosError<any>;
+      console.error("Erro ao cadastrar empresa:", error.response);
+
+      if (error.response && error.response.status === 400) {
+        if (typeof error.response.data === "string") {
+          setError(error.response.data);
+        } else if (error.response.data && error.response.data.errors) {
+          const validationErrors = error.response.data.errors as {
+            [key: string]: string[];
+          };
+          const errorMessages = Object.keys(validationErrors)
+            .map((field) => validationErrors[field].join(" "))
+            .join(" | ");
+          setError(errorMessages);
+        } else {
+          setError("Erro de validação desconhecido.");
+        }
+      } else {
+        setError("Falha ao cadastrar. Verifique os dados e tente novamente.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -148,7 +169,11 @@ const CadastroEmpresaModal: React.FC<CadastroEmpresaModalProps> = ({
           </div>
         </div>
 
-        {error && <p className="text-red-400 text-sm text-center">{error}</p>}
+        {error && (
+          <p className="text-red-400 text-sm text-center bg-red-900/20 p-2 rounded-lg">
+            {error}
+          </p>
+        )}
 
         <div className="flex justify-end gap-4 pt-4">
           <Button
