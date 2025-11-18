@@ -10,7 +10,7 @@ namespace Sistema_HelpDesk.Controllers.Companies
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class empresasController(ICrirEmpresaUseCase criarEmpresa, IAtualizarEmpresaUseCase atualizarEmpresa, IRetornarInformacoesEmpresaUseCase retornarInformacoes) : ControllerBase
+    public class empresasController(ICrirEmpresaUseCase criarEmpresa, IAtualizarEmpresaUseCase atualizarEmpresa, IRetornarInformacoesEmpresaUseCase retornarInformacoes, IRemoverAtivarEmpresaUseCase removerAtivarEmpresa) : ControllerBase
     {
         [HttpPost]
         [Authorize(Roles = "Administrador")]
@@ -82,6 +82,30 @@ namespace Sistema_HelpDesk.Controllers.Companies
                 return BadRequest(result.ErrorMessage);
 
             return Ok(result.Value);
+        }
+
+        [HttpPatch("{id}/inativar")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> DesativarEmpresa([Required] int id)
+        {
+            var result = await removerAtivarEmpresa.RemoverEmpresa(id);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("{id}/ativar")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> AtivarEmpresa([Required] int id)
+        {
+            var result = await removerAtivarEmpresa.AtivarEmpresa(id);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok();
         }
     }
 }

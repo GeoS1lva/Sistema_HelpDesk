@@ -28,22 +28,8 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
             return true;
         }
 
-        public async Task<bool> RemoverTodosUsuarioPorEmpresa(int empresaId)
-        {
-            try
-            {
-                var processo = await _context.Database.ExecuteSqlRawAsync("UPDATE dbo.UsuariosEmpresa SET Status = 0 WHERE EmpresaId = {0}", empresaId);
-
-                return processo > 0;
-            } 
-            catch (Exception ex)
-            {
-                return false;
-            }
-        }
-
         public async Task<UsuariosEmpresa?> RetornarUsuario(int id)
-            => await _context.UsuariosEmpresa.FirstOrDefaultAsync(x => x.Id == id);
+            => await _context.UsuariosEmpresa.Include(x => x.Empresa).FirstOrDefaultAsync(x => x.Id == id);
 
         public async Task<List<UsuariosEmpresa>> RetornarUsuariosEmpresas()
             => await _context.UsuariosEmpresa.ToListAsync();

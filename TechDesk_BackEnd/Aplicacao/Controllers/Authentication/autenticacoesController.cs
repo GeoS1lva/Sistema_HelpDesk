@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Sistema_HelpDesk.Desk.Application.UseCases.Autenticação;
 using Sistema_HelpDesk.Desk.Application.UseCases.Autenticação.DTOs;
+using Sistema_HelpDesk.Desk.Application.UseCases.Authentication.DTOs;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users.DTOs;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users.ResetPasswords;
 using System.ComponentModel.DataAnnotations;
@@ -15,14 +16,14 @@ namespace Sistema_HelpDesk.Controllers.Autenticação
     {
         [AllowAnonymous]
         [HttpPost]
-        public async Task<IActionResult> Login([FromBody] LoginUserAcessar dto)
+        public async Task<IActionResult> LoginSistema([FromBody] LoginUserAcessar dto)
         {
-            var result = await service.FazerLogin(dto);
+            var result = await service.FazerLoginSistema(dto);
 
             if(result.Error)
                 return BadRequest(result.ErrorMessage);
 
-            Response.Cookies.Append("jwt", result.Value, new CookieOptions
+            Response.Cookies.Append("jwt", result.Value.Token, new CookieOptions
             {
                 HttpOnly = true,
                 Secure = true,
@@ -30,9 +31,29 @@ namespace Sistema_HelpDesk.Controllers.Autenticação
                 Expires = DateTime.UtcNow.AddMinutes(480)
             });
 
-            return Ok();
+            return Ok(result.Value.identidadeInformacoes);
         }
-        
+
+        [AllowAnonymous]
+        [HttpPost("painel-chamado")]
+        public async Task<IActionResult> LoginPainel([FromBody] LoginUserAcessar dto)
+        {
+            var result = await service.FazerLoginPainel(dto);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            Response.Cookies.Append("jwt", result.Value.Token, new CookieOptions
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.UtcNow.AddMinutes(480)
+            });
+
+            return Ok(result.Value.identidadeInformacoes);
+        }
+
         [HttpDelete]
         [Authorize]
         public async Task<IActionResult> EncerarSessao()
@@ -52,6 +73,18 @@ namespace Sistema_HelpDesk.Controllers.Autenticação
                 return BadRequest(result.ErrorMessage);
 
             return Ok("Email Enviando com Sucesso!");
+        }
+
+        [AllowAnonymous]
+        [HttpPost("/api/redefinicoes-senha/confirmar")]
+        public async Task<IActionResult> ConfirmarResetSenha([FromBody] UserTokenResetPassword user)
+        {
+            var result = await reset.ResetarSenha(user);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok(result.Value);
         }
     }
 }

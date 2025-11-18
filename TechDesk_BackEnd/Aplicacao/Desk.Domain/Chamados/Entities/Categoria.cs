@@ -1,4 +1,6 @@
-﻿using Sistema_HelpDesk.Desk.Domain.Common;
+﻿using Sistema_HelpDesk.Desk.Domain.Chamados.Entities;
+using Sistema_HelpDesk.Desk.Domain.Chamados.Enums;
+using Sistema_HelpDesk.Desk.Domain.Common;
 
 namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
 {
@@ -7,10 +9,12 @@ namespace Sistema_HelpDesk.Desk.Domain.Chamados.Entidades
         public string Nome { get; set; } = nome;
         public bool Status { get; set; } = true;
 
-        public void Ativo()
-            => Status = true;
+        public ICollection<SubCategoria> SubCategorias { get; set; } = [];
 
-        public void Desativado()
+        public void Desativar()
             => Status = false;
+
+        public void Ativar()
+            => Status = true;
     }
 }

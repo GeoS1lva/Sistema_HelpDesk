@@ -20,7 +20,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Companies
         {
              var listaEmpresas = await unitOfWork.EmpresaRepository.RetornarListaEmpresas();
 
-            if (listaEmpresas == null)
+            if (listaEmpresas.Count == 0)
                 return ResultModel<List<EmpresaInformacoes>>.Erro("Sem Empresas Cadastradas");
 
             return ResultModel<List<EmpresaInformacoes>>.Sucesso(listaEmpresas);
@@ -36,7 +36,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Companies
             var listarUserLogin = await unitOfWork.UserLoginRepository.RetornarLoginsCriados();
             var users = await unitOfWork.UsuarioEmpresaRepository.RetornarUsuariosPorEmpresa(id);
 
-            if (users == null)
+            if (users.Count == 0)
                 return ResultModel<List<UserEmpresaInformacoes>>.Erro("Nenhum usuário cadastrada");
 
             List<UserEmpresaInformacoes> listaUsers = [];
@@ -49,6 +49,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Companies
                 {
                     listaUsers.Add(new UserEmpresaInformacoes
                     {
+                        Id = user.Id,
                         Nome = user.Nome,
                         UserName = login.UserName,
                         Email = login.Email,

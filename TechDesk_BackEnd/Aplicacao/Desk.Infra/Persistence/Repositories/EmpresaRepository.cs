@@ -14,18 +14,6 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
         public void AdicionarEmpresa(Empresa empresa)
             => _context.Empresas.Add(empresa);
 
-        public async Task<bool> RemoverEmpresa(int id)
-        {
-            var empresa = await _context.Empresas.FirstOrDefaultAsync(x => x.Id == id);
-
-            if (empresa is null)
-                return false;
-
-            empresa.Desativado();
-
-            return true;
-        }
-
         public async Task<bool> AtualizarEmpresaNome(int empresaId, EmpresaAtualizarNome empresaAtualizar)
         {
             var empresa = await RetornarEmpresa(empresaId);

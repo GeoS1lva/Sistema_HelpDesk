@@ -250,6 +250,36 @@ namespace Sistema_HelpDesk.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "SubCategoria",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Prioridade = table.Column<int>(type: "int", nullable: false),
+                    SLA = table.Column<int>(type: "int", nullable: false),
+                    MesaAtendimentoId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<bool>(type: "bit", nullable: false),
+                    CategoriaId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_SubCategoria", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_SubCategoria_Categoria_CategoriaId",
+                        column: x => x.CategoriaId,
+                        principalTable: "Categoria",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_SubCategoria_MesasAtendimento_MesaAtendimentoId",
+                        column: x => x.MesaAtendimentoId,
+                        principalTable: "MesasAtendimento",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "MesaTecnicos",
                 columns: table => new
                 {
@@ -279,17 +309,22 @@ namespace Sistema_HelpDesk.Migrations
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
+                    NumeroChamado = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Assunto = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Descricao = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     CategoriaId = table.Column<int>(type: "int", nullable: false),
+                    SubCategoriaId = table.Column<int>(type: "int", nullable: false),
+                    StatusSLA = table.Column<int>(type: "int", nullable: false),
+                    MesaAtendimentoId = table.Column<int>(type: "int", nullable: false),
+                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Status = table.Column<int>(type: "int", nullable: false),
                     TempoAtendimentoTotal = table.Column<long>(type: "bigint", nullable: false),
-                    DataCriacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    DataFinalizacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ComentarioFinalizacao = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DataFinalizacao = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ComentarioFinalizacao = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     EmpresaId = table.Column<int>(type: "int", nullable: false),
                     UsuarioEmpresaId = table.Column<int>(type: "int", nullable: false),
-                    TecnicoFinalizacaoId = table.Column<int>(type: "int", nullable: false)
+                    TecnicoResponsavelId = table.Column<int>(type: "int", nullable: true),
+                    TecnicoAberturaChamadoId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -301,8 +336,25 @@ namespace Sistema_HelpDesk.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Chamados_Tecnicos_TecnicoFinalizacaoId",
-                        column: x => x.TecnicoFinalizacaoId,
+                        name: "FK_Chamados_MesasAtendimento_MesaAtendimentoId",
+                        column: x => x.MesaAtendimentoId,
+                        principalTable: "MesasAtendimento",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Chamados_SubCategoria_SubCategoriaId",
+                        column: x => x.SubCategoriaId,
+                        principalTable: "SubCategoria",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Chamados_Tecnicos_TecnicoAberturaChamadoId",
+                        column: x => x.TecnicoAberturaChamadoId,
+                        principalTable: "Tecnicos",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Chamados_Tecnicos_TecnicoResponsavelId",
+                        column: x => x.TecnicoResponsavelId,
                         principalTable: "Tecnicos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Restrict);
@@ -321,10 +373,11 @@ namespace Sistema_HelpDesk.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ChamadoId = table.Column<int>(type: "int", nullable: false),
-                    Horas = table.Column<long>(type: "bigint", nullable: false),
-                    Temporizador = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
-                    HoraInicio = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    Comentario = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    HoraInicio = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    HoraFim = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
+                    Status = table.Column<int>(type: "int", nullable: false),
+                    TempoGastoTicks = table.Column<long>(type: "bigint", nullable: false),
+                    Comentario = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TecnicoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
@@ -389,9 +442,30 @@ namespace Sistema_HelpDesk.Migrations
                 column: "EmpresaId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Chamados_TecnicoFinalizacaoId",
+                name: "IX_Chamados_MesaAtendimentoId",
                 table: "Chamados",
-                column: "TecnicoFinalizacaoId");
+                column: "MesaAtendimentoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Chamados_NumeroChamado",
+                table: "Chamados",
+                column: "NumeroChamado",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Chamados_SubCategoriaId",
+                table: "Chamados",
+                column: "SubCategoriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Chamados_TecnicoAberturaChamadoId",
+                table: "Chamados",
+                column: "TecnicoAberturaChamadoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Chamados_TecnicoResponsavelId",
+                table: "Chamados",
+                column: "TecnicoResponsavelId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Chamados_UsuarioEmpresaId",
@@ -412,6 +486,16 @@ namespace Sistema_HelpDesk.Migrations
                 name: "IX_MesaTecnicos_TecnicoId",
                 table: "MesaTecnicos",
                 column: "TecnicoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubCategoria_CategoriaId",
+                table: "SubCategoria",
+                column: "CategoriaId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_SubCategoria_MesaAtendimentoId",
+                table: "SubCategoria",
+                column: "MesaAtendimentoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UsuariosEmpresa_EmpresaId",
@@ -438,9 +522,6 @@ namespace Sistema_HelpDesk.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Categoria");
-
-            migrationBuilder.DropTable(
                 name: "HorasChamados");
 
             migrationBuilder.DropTable(
@@ -453,13 +534,19 @@ namespace Sistema_HelpDesk.Migrations
                 name: "Chamados");
 
             migrationBuilder.DropTable(
-                name: "MesasAtendimento");
+                name: "SubCategoria");
 
             migrationBuilder.DropTable(
                 name: "Tecnicos");
 
             migrationBuilder.DropTable(
                 name: "UsuariosEmpresa");
+
+            migrationBuilder.DropTable(
+                name: "Categoria");
+
+            migrationBuilder.DropTable(
+                name: "MesasAtendimento");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");

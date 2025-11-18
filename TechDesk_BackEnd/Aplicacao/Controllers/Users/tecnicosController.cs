@@ -9,7 +9,7 @@ namespace Sistema_HelpDesk.Controllers.Users
 {
     [ApiController]
     [Route("api/[controller]")]
-    public class tecnicosController(ICriarUsuarioSistemaUseCase criarTecnico, IRemoverUsuarioSistemaUseCase removerTecnico, IRetornarInformacoesUseCase informacoesTecnicos) : ControllerBase
+    public class tecnicosController(ICriarUsuarioSistemaUseCase criarTecnico, IRemoverUsuarioSistemaUseCase removerTecnico, IRetornarInformacoesUseCase informacoesTecnicos, IAtualizarInformacoesUsuarioSistemaUseCase atualizarInformacoes) : ControllerBase
     {
         [HttpPost]
         [Authorize(Roles = "Administrador")]
@@ -54,6 +54,18 @@ namespace Sistema_HelpDesk.Controllers.Users
         public async Task<IActionResult> RetornarInformacoesUsuarios()
         {
             var result = await informacoesTecnicos.RetornarInformacoesUsuariosCriado();
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok(result.Value);
+        }
+
+        [HttpPatch("{userName}")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> AtualizarDadosUsuarioSistema([FromBody] UserLoginAtualizar usuario)
+        {
+            var result = await atualizarInformacoes.AtualizarDadosUsuarioSistema(usuario);
 
             if (result.Error)
                 return BadRequest(result.ErrorMessage);

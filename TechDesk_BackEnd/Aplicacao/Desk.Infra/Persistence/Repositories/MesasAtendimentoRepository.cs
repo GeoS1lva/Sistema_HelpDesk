@@ -37,7 +37,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
         public async Task<bool> ConfirmarMesaCadastrada(string nome)
             => await _context.MesasAtendimento.AnyAsync(x => x.Nome == nome);
 
-        public async Task<MesaAtendimento?> RetornarMesaAtendimento(int id)
+        public async Task<MesaAtendimento?> RetornarMesaAtendimento(int? id)
             => await _context.MesasAtendimento.FirstOrDefaultAsync(x => x.Id == id);
 
         public async Task<List<MesaAtendimentoInformacoes>> RetornarListaMesasAtendimento()

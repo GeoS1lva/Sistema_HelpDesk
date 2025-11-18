@@ -20,6 +20,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.UsersCompanies
 
             return ResultModel<UserEmpresaInformacoes>.Sucesso(new UserEmpresaInformacoes
             {
+                Id = infoLogin.Id,
                 Nome = infoUser.Nome,
                 UserName = infoLogin.UserName,
                 Email = infoLogin.Email,

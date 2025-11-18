@@ -26,7 +26,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Persistence.Repositories
             return true;
         }
 
-        public async Task<UsuarioSistema?> RetornarUsuario(int id)
+        public async Task<UsuarioSistema?> RetornarUsuario(int? id)
             => await _context.Tecnicos.FirstOrDefaultAsync(x => x.Id == id);
 
         public async Task<List<UsuarioSistema>> RetornarUsuarios()

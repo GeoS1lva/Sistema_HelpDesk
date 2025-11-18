@@ -1,5 +1,6 @@
 ﻿using Sistema_HelpDesk.Desk.Application.CommomResult;
 using Sistema_HelpDesk.Desk.Application.Contracts.UnitOfWork;
+using Sistema_HelpDesk.Desk.Application.UseCases.Category.DTOs;
 using Sistema_HelpDesk.Desk.Application.UseCases.Category.Interface;
 using Sistema_HelpDesk.Desk.Domain.Chamados.Entidades;
 
@@ -7,24 +8,24 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Category
 {
     public class RetornarInformacoesCategoriaUseCase(IUnitOfWork unitOfWork) : IRetornarInformacoesCategoriaUseCase
     {
-        public async Task<ResultModel<List<Categoria>>> RetornarCategorias()
+        public async Task<ResultModel<List<CategoriaInformacoesDTO>>> RetornarCategorias()
         {
             var result = await unitOfWork.CategoriaRepository.RetornarCategorias();
 
-            if (result == null)
-                return ResultModel<List<Categoria>>.Erro("O Sistema não possui Categorias Cadastradas!");
+            if (result.Count == 0)
+                return ResultModel<List<CategoriaInformacoesDTO>>.Erro("O Sistema não possui Categorias Cadastradas!");
 
-            return ResultModel<List<Categoria>>.Sucesso(result);
+            return ResultModel<List<CategoriaInformacoesDTO>>.Sucesso(result);
         }
 
-        public async Task<ResultModel<Categoria>> RetornarCategoria(int id)
+        public async Task<ResultModel<CategoriaInformacoesDTO>> RetornarCategoria(int id)
         {
-            var result = await unitOfWork.CategoriaRepository.RetonarCategoria(id);
+            var result = await unitOfWork.CategoriaRepository.RetornarCategoriaSubCategoria(id);
 
             if (result == null)
-                return ResultModel<Categoria>.Erro("O Sistema não possui essa Categoria Cadastrada!");
+                return ResultModel<CategoriaInformacoesDTO>.Erro("O Sistema não possui essa Categoria Cadastrada!");
 
-            return ResultModel<Categoria>.Sucesso(result);
+            return ResultModel<CategoriaInformacoesDTO>.Sucesso(result);
         }
     }
 }

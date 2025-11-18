@@ -31,5 +31,10 @@ namespace Sistema_HelpDesk.Desk.Domain.Users.Entities
 
         public void AlterarNome(string nome)
             => Nome = nome;
+
+        public void AcrescentarHorasTotalAtendimento(long apontamento)
+        {
+            HorasTotalAtendimento += apontamento;
+        }
     }
 }

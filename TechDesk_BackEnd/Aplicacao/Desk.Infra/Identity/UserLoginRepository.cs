@@ -15,19 +15,7 @@ namespace Sistema_HelpDesk.Desk.Infra.Identity
         {
             var result = await _userManager.CreateAsync(userLogin, passwords);
 
-            if (!result.Succeeded)
-            {
-                var errors = string.Join(", ", result.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Erro ao criar usuário: {errors}");
-            }
-
-            var roleResult = await _userManager.AddToRoleAsync(userLogin, role);
-
-            if (!roleResult.Succeeded)
-            {
-                var errors = string.Join(", ", roleResult.Errors.Select(e => e.Description));
-                throw new InvalidOperationException($"Erro ao adicionar role: {errors}");
-            }
+            await _userManager.AddToRoleAsync(userLogin, role);
         }
 
         public async Task BloquearLogin(UserLogin user)
@@ -37,11 +25,36 @@ namespace Sistema_HelpDesk.Desk.Infra.Identity
             await _userManager.AccessFailedAsync(user);
         }
 
+        public async Task DesbloquearLogin(UserLogin user)
+        {
+            await _userManager.SetLockoutEndDateAsync(user, null);
+            await _userManager.ResetAccessFailedCountAsync(user);
+            await _userManager.SetLockoutEnabledAsync(user, true);
+        }
+
+        public async Task<bool> AtualizarUserLogin(UserLogin user)
+        {
+            var result = await _userManager.UpdateAsync(user);
+
+            if (!result.Succeeded)
+                return false;
+
+            return true;
+        }
+
+        public async Task TrocarSenhaUserLogin(UserLogin user, string novaSenha)
+        {
+            await _userManager.RemovePasswordAsync(user);
+            await _userManager.AddPasswordAsync(user, novaSenha);
+        }
+
         public async Task<bool> ConfirmarSituacaoUsuario(UserLogin user)
             => await _userManager.IsLockedOutAsync(user);
 
         public async Task<UserLogin?> RetornarLogin(string userName)
             => await _userManager.FindByNameAsync(userName);
+        public async Task<UserLogin?> RetornarLogin(int id)
+            => await _userManager.FindByIdAsync(id.ToString());
 
         public async Task<bool> ConfirmarSenhaLogin(UserLogin user, string passwords)
             => await _userManager.CheckPasswordAsync(user, passwords);
@@ -51,6 +64,9 @@ namespace Sistema_HelpDesk.Desk.Infra.Identity
 
         public async Task<string> TokenResetSenha(UserLogin user)
             => await _userManager.GeneratePasswordResetTokenAsync(user);
+
+        public async Task<IdentityResult> ResetarSenha(UserLogin? user, string token, string novaSenha)
+            => await _userManager.ResetPasswordAsync(user, token, novaSenha);
 
         public async Task<bool> ConfirmarUserNameCadastrado(string userName)
         {

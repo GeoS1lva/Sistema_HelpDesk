@@ -12,8 +12,8 @@ using Sistema_HelpDesk.Desk.Infra.Context;
 namespace Sistema_HelpDesk.Migrations
 {
     [DbContext(typeof(SqlServerIdentityDbContext))]
-    [Migration("20251103133436_CriandoTabelasEntidades")]
-    partial class CriandoTabelasEntidades
+    [Migration("20251116221520_CriandoEntidadeRetornoAtendimentoDeChamado")]
+    partial class CriandoEntidadeRetornoAtendimentoDeChamado
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -140,20 +140,22 @@ namespace Sistema_HelpDesk.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("Comentario")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateTime>("HoraInicio")
-                        .HasColumnType("datetime2");
+                    b.Property<DateTimeOffset>("HoraFim")
+                        .HasColumnType("datetimeoffset");
 
-                    b.Property<long>("Horas")
-                        .HasColumnType("bigint");
+                    b.Property<DateTimeOffset>("HoraInicio")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int>("TecnicoId")
                         .HasColumnType("int");
 
-                    b.Property<DateTimeOffset>("Temporizador")
-                        .HasColumnType("datetimeoffset");
+                    b.Property<long>("TempoGastoTicks")
+                        .HasColumnType("bigint");
 
                     b.HasKey("Id");
 
@@ -200,13 +202,12 @@ namespace Sistema_HelpDesk.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("ComentarioFinalizacao")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("DataCriacao")
                         .HasColumnType("datetime2");
 
-                    b.Property<DateTime>("DataFinalizacao")
+                    b.Property<DateTime?>("DataFinalizacao")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Descricao")
@@ -216,10 +217,26 @@ namespace Sistema_HelpDesk.Migrations
                     b.Property<int>("EmpresaId")
                         .HasColumnType("int");
 
+                    b.Property<int>("MesaAtendimentoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("NumeroChamado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(450)");
+
                     b.Property<int>("Status")
                         .HasColumnType("int");
 
-                    b.Property<int>("TecnicoFinalizacaoId")
+                    b.Property<int>("StatusSLA")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SubCategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TecnicoAberturaChamadoId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("TecnicoResponsavelId")
                         .HasColumnType("int");
 
                     b.Property<long>("TempoAtendimentoTotal")
@@ -232,11 +249,92 @@ namespace Sistema_HelpDesk.Migrations
 
                     b.HasIndex("EmpresaId");
 
-                    b.HasIndex("TecnicoFinalizacaoId");
+                    b.HasIndex("MesaAtendimentoId");
+
+                    b.HasIndex("NumeroChamado")
+                        .IsUnique();
+
+                    b.HasIndex("SubCategoriaId");
+
+                    b.HasIndex("TecnicoAberturaChamadoId");
+
+                    b.HasIndex("TecnicoResponsavelId");
 
                     b.HasIndex("UsuarioEmpresaId");
 
                     b.ToTable("Chamados");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.RetornoAtendimento", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ChamadoId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("HoraAtendimento")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Mensagem")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NomeTecnico")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("NumeroChamado")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("RetornoAcao")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ChamadoId");
+
+                    b.ToTable("RetornoAtendimento");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.SubCategoria", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("CategoriaId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("MesaAtendimentoId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Nome")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Prioridade")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SLA")
+                        .HasColumnType("int");
+
+                    b.Property<bool>("Status")
+                        .HasColumnType("bit");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CategoriaId");
+
+                    b.HasIndex("MesaAtendimentoId");
+
+                    b.ToTable("SubCategoria");
                 });
 
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Empresas.Entidades.Empresa", b =>
@@ -523,11 +621,26 @@ namespace Sistema_HelpDesk.Migrations
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", "TecnicoFinalizacao")
-                        .WithMany("Chamados")
-                        .HasForeignKey("TecnicoFinalizacaoId")
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Mesa.Entities.MesaAtendimento", "MesaAtendimento")
+                        .WithMany()
+                        .HasForeignKey("MesaAtendimentoId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.SubCategoria", "SubCategoria")
+                        .WithMany()
+                        .HasForeignKey("SubCategoriaId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", "TecnicoAberturaChamado")
+                        .WithMany()
+                        .HasForeignKey("TecnicoAberturaChamadoId");
+
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Users.Entities.UsuarioSistema", "TecnicoResponsavel")
+                        .WithMany("Chamados")
+                        .HasForeignKey("TecnicoResponsavelId")
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("Sistema_HelpDesk.Desk.Domain.Empresas.Entidades.UsuariosEmpresa", "UsuarioEmpresa")
                         .WithMany()
@@ -537,9 +650,45 @@ namespace Sistema_HelpDesk.Migrations
 
                     b.Navigation("Empresa");
 
-                    b.Navigation("TecnicoFinalizacao");
+                    b.Navigation("MesaAtendimento");
+
+                    b.Navigation("SubCategoria");
+
+                    b.Navigation("TecnicoAberturaChamado");
+
+                    b.Navigation("TecnicoResponsavel");
 
                     b.Navigation("UsuarioEmpresa");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.RetornoAtendimento", b =>
+                {
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Chamado", "Chamado")
+                        .WithMany("Retornos")
+                        .HasForeignKey("ChamadoId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Chamado");
+                });
+
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entities.SubCategoria", b =>
+                {
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Categoria", "Categoria")
+                        .WithMany("SubCategorias")
+                        .HasForeignKey("CategoriaId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Sistema_HelpDesk.Desk.Domain.Mesa.Entities.MesaAtendimento", "MesaAtendimento")
+                        .WithMany()
+                        .HasForeignKey("MesaAtendimentoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Categoria");
+
+                    b.Navigation("MesaAtendimento");
                 });
 
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Empresas.Entidades.UsuariosEmpresa", b =>
@@ -587,9 +736,16 @@ namespace Sistema_HelpDesk.Migrations
                     b.Navigation("UserLogin");
                 });
 
+            modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Categoria", b =>
+                {
+                    b.Navigation("SubCategorias");
+                });
+
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Chamados.Entidades.Chamado", b =>
                 {
                     b.Navigation("Apontamentos");
+
+                    b.Navigation("Retornos");
                 });
 
             modelBuilder.Entity("Sistema_HelpDesk.Desk.Domain.Empresas.Entidades.Empresa", b =>

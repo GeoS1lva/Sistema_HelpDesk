@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Sistema_HelpDesk.Desk.Domain.Chamados.Entidades;
+using Sistema_HelpDesk.Desk.Domain.Chamados.Entities;
+using Sistema_HelpDesk.Desk.Domain.Chat;
 using Sistema_HelpDesk.Desk.Domain.Empresas.Entidades;
 using Sistema_HelpDesk.Desk.Domain.Mesa.Entities;
 using Sistema_HelpDesk.Desk.Domain.Users.Entities;
@@ -19,6 +21,9 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
         public DbSet<MesaAtendimento> MesasAtendimento { get; set; }
         public DbSet<MesaTecnicos> MesaTecnicos { get; set; }
         public DbSet<Categoria> Categoria { get; set; }
+        public DbSet<SubCategoria> SubCategoria { get; set; }
+        public DbSet<RetornoAtendimento> RetornoAtendimento { get; set; }
+        public DbSet<ChatChamado> Chat { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -52,6 +57,10 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
                 .HasForeignKey<UsuariosEmpresa>(x => x.Id);
 
             modelBuilder.Entity<Chamado>()
+                .HasIndex(c => c.NumeroChamado)
+                .IsUnique();
+
+            modelBuilder.Entity<Chamado>()
                 .HasOne(x => x.Empresa)
                 .WithMany(e => e.Chamados)
                 .HasForeignKey(x => x.EmpresaId)
@@ -64,9 +73,21 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<Chamado>()
-                .HasOne(x => x.TecnicoFinalizacao)
+                .HasOne(x => x.TecnicoResponsavel)
                 .WithMany(e => e.Chamados)
-                .HasForeignKey(x => x.TecnicoFinalizacaoId)
+                .HasForeignKey(x => x.TecnicoResponsavelId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Chamado>()
+                .HasOne(x => x.SubCategoria)
+                .WithMany()
+                .HasForeignKey(x => x.SubCategoriaId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Chamado>()
+                .HasOne(x => x.MesaAtendimento)
+                .WithMany()
+                .HasForeignKey(x => x.MesaAtendimentoId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<MesaAtendimento>()
@@ -84,6 +105,24 @@ namespace Sistema_HelpDesk.Desk.Infra.Context
                 .HasOne(x => x.Tecnico)
                 .WithMany()
                 .HasForeignKey(x => x.TecnicoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Categoria>()
+                .HasMany(c => c.SubCategorias)
+                .WithOne(x => x.Categoria)
+                .HasForeignKey(s => s.CategoriaId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<RetornoAtendimento>()
+                .HasOne(x => x.Chamado)
+                .WithMany(x => x.Retornos)
+                .HasForeignKey(x => x.ChamadoId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<ChatChamado>()
+                .HasOne(x => x.Chamado)
+                .WithMany(x => x.Chat)
+                .HasForeignKey(x => x.ChamadoId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }

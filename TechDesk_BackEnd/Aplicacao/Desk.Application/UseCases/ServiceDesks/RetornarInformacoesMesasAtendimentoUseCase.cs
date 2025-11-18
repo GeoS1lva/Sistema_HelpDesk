@@ -12,7 +12,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks
         {
             var mesasNome = await unitOfWork.MesasAtendimentosRepository.RetornarListaMesasAtendimento();
 
-            if (mesasNome is null)
+            if (mesasNome.Count == 0)
                 return ResultModel<List<MesaAtendimentoInformacoes>>.Erro("Não foi encontrado nenhuma mesa de atendimento!");
 
             return ResultModel<List<MesaAtendimentoInformacoes>>.Sucesso(mesasNome);

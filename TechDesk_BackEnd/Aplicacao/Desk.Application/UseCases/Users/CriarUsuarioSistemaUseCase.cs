@@ -25,6 +25,9 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Users
             if (!ValidacaoEmail.ValidarEmail(usuario.Email))
                 return ResultModel.Erro("Email Inválido!");
 
+            if ((await ValidarMesasAdicionadas(usuario.MesasAtendimentoId)) == false)
+                return ResultModel.Erro("Mesas de Atendimento inválidas! Verifique se as mesas Adicionadas existe...");
+
             var result = ValidacaoSenha.Validador(usuario.Password);
 
             if (result.Error)

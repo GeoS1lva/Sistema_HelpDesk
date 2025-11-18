@@ -6,5 +6,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Category.Interface
     {
         public Task<ResultModel> DesativarCategoria(int id);
         public Task<ResultModel> AtivarCategoria(int id);
+        public Task<ResultModel> DesativarSubCategoria(int subCategoriaId);
+        public Task<ResultModel> AtivarSubCatetgoria(int subCategoriaId);
     }
 }

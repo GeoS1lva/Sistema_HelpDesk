@@ -11,7 +11,7 @@ namespace Sistema_HelpDesk.Desk.Application.Contracts.Repositories
         public Task RemoverMesaAtendimento(MesaAtendimento mesa);
         public Task<bool> ConfirmarMesaCadastrada(int id);
         public Task<bool> ConfirmarMesaCadastrada(string nome);
-        public Task<MesaAtendimento?> RetornarMesaAtendimento(int id);
+        public Task<MesaAtendimento?> RetornarMesaAtendimento(int? id);
         public Task<List<MesaAtendimentoInformacoes>> RetornarListaMesasAtendimento();
         public Task<List<string>> RetornarListaMesaTecnico(int IdUser);
         public Task RemoverRelacionamento(int tecnicoId);

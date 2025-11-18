@@ -1,4 +1,7 @@
-﻿namespace Sistema_HelpDesk.Desk.Application.CommomResult
+﻿using Newtonsoft.Json.Linq;
+using Sistema_HelpDesk.Desk.Application.UseCases.Authentication.DTOs;
+
+namespace Sistema_HelpDesk.Desk.Application.CommomResult
 {
     public readonly struct ResultModel
     {

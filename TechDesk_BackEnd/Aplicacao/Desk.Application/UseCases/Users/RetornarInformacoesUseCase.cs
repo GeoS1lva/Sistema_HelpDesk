@@ -15,9 +15,9 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Users
             if (infoLogin == null)
                 return ResultModel<UserInformacoes>.Erro("Usuário não encontrado!");
 
-            var infoTecnico = await unitOfWork.UsuarioEmpresaRepository.RetornarUsuario(infoLogin.Id);
+            var infoTecnico = await unitOfWork.UsuarioSistemaRepository.RetornarUsuario(infoLogin.Id);
 
-            if (infoTecnico == null && infoLogin.TipoPerfil != TipoPerfil.administrador)
+            if (infoTecnico == null)
                 return ResultModel<UserInformacoes>.Erro("Perfil Tecnico do Usuario não encontrado!");
 
             return ResultModel<UserInformacoes>.Sucesso(new UserInformacoes
@@ -36,7 +36,7 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Users
             var listarUserLogin = await unitOfWork.UserLoginRepository.RetornarLoginsCriados();
             var tecnicosInformacoes = await unitOfWork.UsuarioSistemaRepository.RetornarUsuarios();
 
-            if (listarUserLogin == null || tecnicosInformacoes == null)
+            if (listarUserLogin.Count == 0 || tecnicosInformacoes.Count == 0)
                 return ResultModel<List<UserInformacoes>>.Erro("Nenhum Usuário Cadastrado!");
 
             List<UserInformacoes> userInformacoes = [];

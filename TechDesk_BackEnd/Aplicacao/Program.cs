@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using Quartz;
 using Sistema_HelpDesk.Desk.Application.Contracts.Repositories;
 using Sistema_HelpDesk.Desk.Application.Contracts.Security;
 using Sistema_HelpDesk.Desk.Application.Contracts.UnitOfWork;
@@ -15,6 +16,8 @@ using Sistema_HelpDesk.Desk.Application.UseCases.Companies;
 using Sistema_HelpDesk.Desk.Application.UseCases.Companies.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks;
 using Sistema_HelpDesk.Desk.Application.UseCases.ServiceDesks.Interface;
+using Sistema_HelpDesk.Desk.Application.UseCases.Tickets;
+using Sistema_HelpDesk.Desk.Application.UseCases.Tickets.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users.Interface;
 using Sistema_HelpDesk.Desk.Application.UseCases.Users.ResetPasswords;
@@ -25,9 +28,11 @@ using Sistema_HelpDesk.Desk.Infra.Autenticação;
 using Sistema_HelpDesk.Desk.Infra.Context;
 using Sistema_HelpDesk.Desk.Infra.Email;
 using Sistema_HelpDesk.Desk.Infra.Identity;
-using Sistema_HelpDesk.Desk.Infra.Persistence.Repositories;
+using Sistema_HelpDesk.Desk.Infra.JSONSerializacao;
 using Sistema_HelpDesk.Desk.Infra.Persistence.UnitOfWork;
+using Sistema_HelpDesk.Desk.Infra.SingaLR;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -107,13 +112,17 @@ builder.Services.AddScoped<IAutheUseCase, AutheUseCase>();
 builder.Services.AddScoped<ICriarUsuarioSistemaUseCase, CriarUsuarioSistemaUseCase>();
 builder.Services.AddScoped<IRemoverUsuarioSistemaUseCase, RemoverUsuarioSistemaUseCase>();
 builder.Services.AddScoped<IRetornarInformacoesUseCase, RetornarInformacoesUseCase>();
+builder.Services.AddScoped<IAtualizarInformacoesUsuarioSistemaUseCase, AtualizarInformacoesUsuarioSistemaUseCase>();
 
 builder.Services.AddScoped<ICrirEmpresaUseCase, CrirEmpresaUseCase>();
 builder.Services.AddScoped<IAtualizarEmpresaUseCase, AtualizarEmpresaUseCase>();
 builder.Services.AddScoped<IRetornarInformacoesEmpresaUseCase, RetornarInformacoesEmpresaUseCase>();
+builder.Services.AddScoped<IRemoverAtivarEmpresaUseCase, RemoverAtivarEmpresaUseCase>();
 
 builder.Services.AddScoped<ICriarUsuarioEmpresaUseCase, CriarUsuarioEmpresaUseCase>();
 builder.Services.AddScoped<IRetornarInformacoesUsuarioEmpresaUseCase, RetornarInformacoesUsuarioEmpresaUseCase>();
+builder.Services.AddScoped<IRemoverAtivarUsuarioEmpresaUseCase, RemoverAtivarUsuarioEmpresaUseCase>();
+builder.Services.AddScoped<IAtualizarInformacoesUsuarioEmpresaUseCase, AtualizarInformacoesUsuarioEmpresaUseCase>();
 
 builder.Services.AddScoped<ICriarMesaAtendimentoUseCase, CriarMesaAtendimentoUseCase>();
 builder.Services.AddScoped<IRemoverMesaAtendimentoUseCase, RemoverMesaAtendimentoUseCase>();
@@ -123,8 +132,35 @@ builder.Services.AddScoped<ICriarCategoriaUseCase, CriarCategoriaUseCase>();
 builder.Services.AddScoped<IDeletarAtivarCategoriaUseCase, DeletarAtivarCategoriaUseCase>();
 builder.Services.AddScoped<IRetornarInformacoesCategoriaUseCase, RetornarInformacoesCategoriaUseCase>();
 
+builder.Services.AddScoped<ICriarChamadoUseCase, CriarChamadoUseCase>();
+builder.Services.AddScoped<IAcoesChamadoUseCase, AcoesChamadoUseCase>();
+builder.Services.AddScoped<IRetornarInformacoesChamadosUseCase, RetornarInformacoesChamadosUseCase>();
+builder.Services.AddScoped<IAtualizarInformacoesChamadoUseCase, AtualizarInformacoesChamadosUseCase>();
+
 builder.Services.AddScoped<IRolesRepositorys, RolesRepositorys>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
+
+builder.Services.AddQuartz(q =>
+{
+    var jobKey = new JobKey(nameof(AtualizarSlaJob));
+
+    q.AddJob<AtualizarSlaJob>(options => options
+        .WithIdentity(jobKey));
+
+q.AddTrigger(options => options
+    .ForJob(jobKey)
+    .WithIdentity($"{nameof(AtualizarSlaJob)}--trigger")
+    .StartNow()
+    .WithSimpleSchedule(x => x
+        .WithInterval(TimeSpan.FromMinutes(3))
+        .RepeatForever())
+    );
+});
+
+builder.Services.AddQuartzHostedService(options =>
+{
+    options.WaitForJobsToComplete = true;
+});
 
 builder.Services.AddCors(options =>
 {
@@ -140,6 +176,8 @@ builder.Services.AddCors(options =>
     });
 });
 
+builder.Services.AddSignalR();
+
 builder.WebHost.ConfigureKestrel(options =>
 {
     options.ConfigureHttpsDefaults(httpsOptions =>
@@ -148,7 +186,13 @@ builder.WebHost.ConfigureKestrel(options =>
     });
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(options =>
+    {
+        options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonDateTimeOffsetConverter());
+        options.JsonSerializerOptions.Converters.Add(new JsonTimeSpanConverter());
+    });
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(s =>
@@ -181,6 +225,8 @@ app.UseHttpsRedirection();
 
 app.UseAuthentication();
 app.UseAuthorization();
+
+app.MapHub<EnviarMensagemHub>("/chatHub");
 
 app.MapControllers();
 

@@ -6,5 +6,6 @@ namespace Sistema_HelpDesk.Desk.Application.UseCases.Users.ResetPasswords
     public interface IResetarSenhaUseCase
     {
         public Task<ResultModel> SolicitarRedefinicaoSenha(UserResetPasswords userReset);
+        public Task<ResultModel<string>> ResetarSenha(UserTokenResetPassword userRequest);
     }
 }

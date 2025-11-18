@@ -22,7 +22,19 @@ namespace Sistema_HelpDesk.Controllers.Category
             return Ok();
         }
 
-        [HttpDelete("{id}")]
+        [HttpPost("subCategoria")]
+        [Authorize(Roles = "Administrador,Tecnico")]
+        public async Task<IActionResult> CadastrarSubCategoria([Required] List<SubCategoriaCriar> subCategorias, [Required] int categoriaId)
+        {
+            var result = await criarCategoria.AdicionarSubCategorias(subCategorias, categoriaId);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("{id}/inativar")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> DesativarCategoria([Required] int id)
         {
@@ -34,11 +46,35 @@ namespace Sistema_HelpDesk.Controllers.Category
             return Ok();
         }
 
-        [HttpPatch("{id}")]
+        [HttpPatch("{id}/ativar")]
         [Authorize(Roles = "Administrador")]
         public async Task<IActionResult> AtivarCategoria([Required] int id)
         {
             var result = await deletarAtivar.AtivarCategoria(id);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("subCategoria/{id}/inativar")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> DesativarSubCategoria([Required] int id)
+        {
+            var result = await deletarAtivar.DesativarSubCategoria(id);
+
+            if (result.Error)
+                return BadRequest(result.ErrorMessage);
+
+            return Ok();
+        }
+
+        [HttpPatch("subCategoria/{id}/ativar")]
+        [Authorize(Roles = "Administrador")]
+        public async Task<IActionResult> AtivarSubCategoria([Required] int id)
+        {
+            var result = await deletarAtivar.AtivarSubCatetgoria(id);
 
             if (result.Error)
                 return BadRequest(result.ErrorMessage);
