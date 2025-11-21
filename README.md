@@ -72,7 +72,7 @@ Alunos:
   - Chamados
 - Implemenado módulo de SLA
 - Implementado rotinas agendadas para serem executadas e atualizar o status do SLA com Background Jobs utilizando Quartz
-- COntrução de APIs com Arquitetura RestFul
+- Construção de APIs com Arquitetura RestFul
 - Implementado o Design Pattern UnitOfWork para a consistência dos dados
 - Implementado Result Pattern (padrão de resultado)
 - Iniciado implementação do chat entre cliente e técnico com SignalR (Em Construção)
