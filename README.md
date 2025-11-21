@@ -38,7 +38,7 @@ Alunos:
 ---
 
 ### 📅 Status do Projeto
-🚧 **Em desenvolvimento** — funcionalidades iniciais já implementadas.
+🚧 **Finalizado V1.0**
 
 #### Frontend
 - Protótipo no **Figma** das principais partes do sistema:
@@ -47,6 +47,12 @@ Alunos:
   - Painel de chamados
   - Painel para abertura de chamado pelo técnico
 - Implementação/codificação das telas de login.
+- Implementação/codificação portal do cliente
+- Implementação/codificação painel de chamados
+- Implementação/codificação painel do cliente
+- Implementação/codificação tela gerenciamento de empresas e usuários
+- Implementação/codificação tela gerenciamento de técnicos
+- Implementação/codificação tela gerenciamento de mesas de atendimento
 
 #### Backend
 - Construção das entidades principais do sistema e seus relacionamentos.
@@ -54,9 +60,22 @@ Alunos:
 - Implementação do **ASP.NET Identity** para controle de usuários e roles.
 - Autenticação e autorização com **JWT + Cookie**, já aplicado nas APIs:
   - Apenas usuários com o papel/role correto conseguem realizar requisições.
-- Início da construção do **serviço de e-mail**:
+- Implementado **serviço de e-mail**:
   - Envio de e-mail para redefinição de senha.
   - Estrutura preparada para futuros serviços de notificação.
+- Implementado CRUD completo das entidades:
+  - UsuarioSistema
+  - UsuarioEmpresa
+  - Empresa
+  - Mesas de Atendimento
+  - Categorias
+  - Chamados
+- Implemenado módulo de SLA
+- Implementado rotinas agendadas para serem executadas e atualizar o status do SLA com Background Jobs utilizando Quartz
+- COntrução de APIs com Arquitetura RestFul
+- Implementado o Design Pattern UnitOfWork para a consistência dos dados
+- Implementado Result Pattern (padrão de resultado)
+- Iniciado implementação do chat entre cliente e técnico com SignalR (Em Construção)
 
 ---
 
