@@ -224,3 +224,7 @@ Executar as Migrações (Criar Banco):
 
 ### 5. Executar FrontEnd
 Para Executar o FrontEnd acesse a Documentação interna do projeto dentro da pasta techdesk_frontend
+
+Usuário para teste: Admin
+Senha: Admin@123
+Para testar os chamados, é necessário criar um usuário técnico ou admnistrar pois esse user é gerado automaticamente pelo BackEnd para teste
