@@ -150,7 +150,7 @@ Para executar o projeto, certifique-se de ter instalado:
 
 ---
 
-Siga os passos abaixo para rodar o BackEnd
+### 1. Siga os passos abaixo para rodar o BackEnd
  1. Clone o repositório Online
  2. Navegue até a pasta `TechDesk_BackEnd`.
  3. Abra o arquivo de solução **`Sistema_HelpDesk.sln`** no Visual Studio 2022.
@@ -158,7 +158,7 @@ Siga os passos abaixo para rodar o BackEnd
 ### 2. Configuração do `appsettings.json`
 Dentro da pasta `TechDesk_BackEnd/Aplicacao`, crie um arquivo com o nome **`appsettings.json`** e insira o seguinte conteúdo:
 
-json
+```json
 {
   "EmailConfiguracao": {
     "SmtpServer": "smtp.titan.email",
@@ -185,6 +185,7 @@ json
   },
   "AllowedHosts": "*"
 }
+```
 IMPORTANTE: Substitua NOME_SERVIDOR_LOCAL_BANCO_DE_DADOS pelo hostname do seu SQL Server (ex: DESKTOP-XXXX\SQLEXPRESS ou (localdb)\mssqllocaldb).
 
 ### 3. Instalação de Dependências e Banco de Dados
