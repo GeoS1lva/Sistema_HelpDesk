@@ -147,7 +147,7 @@ builder.Services.AddQuartz(q =>
     q.AddJob<AtualizarSlaJob>(options => options
         .WithIdentity(jobKey));
 
-q.AddTrigger(options => options
+    q.AddTrigger(options => options
     .ForJob(jobKey)
     .WithIdentity($"{nameof(AtualizarSlaJob)}--trigger")
     .StartNow()
