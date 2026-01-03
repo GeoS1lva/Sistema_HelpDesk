@@ -38,7 +38,7 @@ Alunos:
 ---
 
 ### 📅 Status do Projeto
-🚧 **Em desenvolvimento** — funcionalidades iniciais já implementadas.
+🚧 **Finalizado V1.0**
 
 #### Frontend
 - Protótipo no **Figma** das principais partes do sistema:
@@ -47,6 +47,12 @@ Alunos:
   - Painel de chamados
   - Painel para abertura de chamado pelo técnico
 - Implementação/codificação das telas de login.
+- Implementação/codificação portal do cliente
+- Implementação/codificação painel de chamados
+- Implementação/codificação painel do cliente
+- Implementação/codificação tela gerenciamento de empresas e usuários
+- Implementação/codificação tela gerenciamento de técnicos
+- Implementação/codificação tela gerenciamento de mesas de atendimento
 
 #### Backend
 - Construção das entidades principais do sistema e seus relacionamentos.
@@ -54,9 +60,22 @@ Alunos:
 - Implementação do **ASP.NET Identity** para controle de usuários e roles.
 - Autenticação e autorização com **JWT + Cookie**, já aplicado nas APIs:
   - Apenas usuários com o papel/role correto conseguem realizar requisições.
-- Início da construção do **serviço de e-mail**:
+- Implementado **serviço de e-mail**:
   - Envio de e-mail para redefinição de senha.
   - Estrutura preparada para futuros serviços de notificação.
+- Implementado CRUD completo das entidades:
+  - UsuarioSistema
+  - UsuarioEmpresa
+  - Empresa
+  - Mesas de Atendimento
+  - Categorias
+  - Chamados
+- Implemenado módulo de SLA
+- Implementado rotinas agendadas para serem executadas e atualizar o status do SLA com Background Jobs utilizando Quartz
+- Construção de APIs com Arquitetura RestFul
+- Implementado o Design Pattern UnitOfWork para a consistência dos dados
+- Implementado Result Pattern (padrão de resultado)
+- Iniciado implementação do chat entre cliente e técnico com SignalR (Em Construção)
 
 ---
 
@@ -137,3 +156,75 @@ Sistema_HelpDesk/
   Camada de **interface com o usuário** (no caso, API REST). Recebe as requisições, valida e repassa para a camada de aplicação.  
 
 Essa organização facilita a evolução do sistema, garantindo baixo acoplamento e alta coesão entre as partes.
+
+---
+
+## 📋 Pré-requisitos
+
+Para executar o projeto, certifique-se de ter instalado:
+
+* [.NET SDK 8.0 ou superior](https://dotnet.microsoft.com/download)
+* [Node.js](https://nodejs.org/) (v18 ou superior)
+* SQL Server (Express ou LocalDB)
+
+---
+
+### 1. Siga os passos abaixo para rodar o BackEnd
+ 1. Clone o repositório Online
+ 2. Navegue até a pasta `TechDesk_BackEnd`.
+ 3. Abra o arquivo de solução **`Sistema_HelpDesk.sln`** no Visual Studio 2022.
+
+### 2. Configuração do `appsettings.json`
+Dentro da pasta `TechDesk_BackEnd/Aplicacao`, crie um arquivo com o nome **`appsettings.json`** e insira o seguinte conteúdo:
+
+```json
+{
+  "EmailConfiguracao": {
+    "SmtpServer": "smtp.titan.email",
+    "Port": 587,
+    "UserName": "suporte@techdesk.dev.br",
+    "Password": "Senha_Email",
+    "FromEmail": "suporte@techdesk.dev.br",
+    "FromName": "Suporte_TechDesk"
+  },
+  "Jwt": {
+    "Issuer": "https://localhost",
+    "Audience": "api",
+    "Key": "iLTCvJfm16nJfwNl4XcHs933aTIYaFHF",
+    "AccessTokenMinutes": 480
+  },
+  "ConnectionStrings": {
+    "ConexaoSql": "Server=NOME_SERVIDOR_LOCAL_BANCO_DE_DADOS;Database=Sistema_HelpDesk;Trusted_Connection=True;TrustServerCertificate=True;"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft.AspNetCore": "Warning"
+    }
+  },
+  "AllowedHosts": "*"
+}
+```
+IMPORTANTE: Substitua NOME_SERVIDOR_LOCAL_BANCO_DE_DADOS pelo hostname do seu SQL Server (ex: DESKTOP-XXXX\SQLEXPRESS ou (localdb)\mssqllocaldb).
+
+### 3. Instalação de Dependências e Banco de Dados
+Abra o terminal (CMD), navegue até a pasta TechDesk_BackEnd/Aplicacao e execute os comandos:
+
+Restaurar pacotes e instalar ferramenta do EF:
+- dotnet restore
+- dotnet tool install --global dotnet-ef - (Nota: Se a ferramenta já estiver instalada, ele apenas avisará, pode ignorar o erro).
+
+Executar as Migrações (Criar Banco): 
+- dotnet ef database update
+
+### 4. Executar a Aplicação
+- Volte ao Visual Studio 2022.
+- Clique no botão de Play (perfil Https).
+- Após iniciar, será aberto a documentação Swagger - (OBS: No Swagger, verifique a aba Schemas. Alguns campos utilizam valores Enum para o envio correto)
+
+### 5. Executar FrontEnd
+Para Executar o FrontEnd acesse a Documentação interna do projeto dentro da pasta techdesk_frontend
+
+Usuário para teste: Admin
+Senha: Admin@123
+Para testar os chamados, é necessário criar um usuário técnico ou admnistrar pois esse user é gerado automaticamente pelo BackEnd para teste
